@@ -1,0 +1,16 @@
+#ignore below
+*.bmp
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.docx
+*.txt
+.vs/
+Debug/
+Tie Dye Simulation.VC.db
+Tie Dye Simulation.VC.opendb
+Tie Dye Simulation.sdf
+Tie Dye Simulation.sln
+simulation/
+simulation ver2/
+simulation ver3/Debug/

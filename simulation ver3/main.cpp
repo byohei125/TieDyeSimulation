@@ -112,52 +112,7 @@ void Cloth(void) {
 			}
 		}
 	}
-	//ゆらぎの導入
-	double rmin = NN;
-	double mmax = 0;
-	//ゆらぎの幅（yuragiwの最低値～最大値）を設定
-	yuragiwmax = 0, yuragiwmin = NN;
-	for (int i = 1; i <= 2 * Ny + 1; i++) {//すべてのセルでゆらぎ計算，i = 0においてゆらぎは0
-		for (int j = 1; j <= 2 * Nx + 1; j++) {
-			Yuragi(i, j);
-		}
-	}
-	yuragi_range_setting = 1.0;
-	while (yuragiwmax / yuragi_range_setting > yuragi_range) {
-		yuragi_range_setting += 0.00001;
-	}
-
-	for (int i = 1; i <= 2 * Ny + 1; i++) {//i = 0において計算するとゆらぎが0になる
-		for (int j = 1; j <= 2 * Nx + 1; j++) {
-
-			if (i % 2 == 0 && j % 2 == 0) {//糸，布目
-				//I = i / 2; J = j / 2;//下の計算をこれでやっても良いかも
-				yuragiw[i][j] = yuragiw[i][j] / yuragi_range_setting + 1.0;
-
-				gap[i - 1][j][X] = gap[i - 1][j][X] + yarn[i][j][X] - yarny * yuragiw[i][j];
-				if (gap[i - 1][j][X] < 0) {
-					gap[i - 1][j][X] = 0;
-				}
-				yarn[i][j][X] = yarny * yuragiw[i][j];
-
-				gap[i][j - 1][Y] = gap[i][j - 1][Y] + yarn[i][j][Y] - yarnx * yuragiw[i][j];
-				if (gap[i][j - 1][Y] < 0) {
-					gap[i][j - 1][Y] = 0;
-				}
-				yarn[i][j][Y] = yarnx * yuragiw[i][j];
-
-			}
-		}
-	}
-
-	//横方向の糸の太さのつながりを確認
-	/*for (int j = 1; j <= 2 * Nx + 1; j++) {
-		for (int i = 1; i <= 2 * Ny + 1; i++) {	
-			if (i % 2 == 0 && j % 2 == 0) {
-				cout << "(" << i - 1 << "," << j << "), (" << i << "," << j << ")：" << gap[i - 1][j][Y] << ", " << yarn[i][j][Y] << endl;
-			}
-		}
-	}*/
+	
 
 	cout << endl << "布の初期値設定...COMPLETE" << endl;
 
@@ -281,7 +236,7 @@ void Dye(void) {
 	}*/
 	//中心に滴下
 	//rA = floor((Nx + Ny)/2 /2);
-	rA = 80;
+	rA = 80;//80
 	cout << "滴下範囲の半径 rA = " << rA << endl;
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
@@ -348,6 +303,61 @@ void ClothDraw(void) {
 	width = converting_rate * (Gap[2 * Ny + 1][2 * Nx + 1][X] + gap[2 * Ny + 1][2 * Nx + 1][X]);
 	height = converting_rate * (Gap[2 * Ny + 1][2 * Nx + 1][Y] + gap[2 * Ny + 1][2 * Nx + 1][Y]);
 	//width = floor(width); height = floor(height);
+
+}
+
+//---------------------------------------------------------------------------------------------------
+//　　Yuragi
+//　　Desc : ゆらぎの付与
+//---------------------------------------------------------------------------------------------------
+void Yuragi(void) {
+	//ゆらぎの導入
+	double rmin = NN;
+	double mmax = 0;
+	//ゆらぎの幅（yuragiwの最低値～最大値）を設定
+	yuragiwmax = 0, yuragiwmin = NN;
+	for (int i = 1; i <= 2 * Ny + 1; i++) {//すべてのセルでゆらぎ計算，i = 0においてゆらぎは0
+		for (int j = 1; j <= 2 * Nx + 1; j++) {
+			YuragiCal(i, j);
+		}
+	}
+	yuragi_range_setting = 1.0;
+	while (yuragiwmax / yuragi_range_setting > yuragi_range) {
+		yuragi_range_setting += 0.00001;
+	}
+
+	for (int i = 1; i <= 2 * Ny + 1; i++) {//i = 0において計算するとゆらぎが0になる
+		for (int j = 1; j <= 2 * Nx + 1; j++) {
+
+			//if (i % 2 == 0 && j % 2 == 0) {//糸，布目
+			//	yuragiw[i][j] = yuragiw[i][j] / yuragi_range_setting + 1.0;
+			//	gap[i - 1][j][X] = gap[i - 1][j][X] + yarn[i][j][X] - yarny * yuragiw[i][j];
+			//	if (gap[i - 1][j][X] < 0) {
+			//		gap[i - 1][j][X] = 0;
+			//	}
+			//	yarn[i][j][X] = yarny * yuragiw[i][j];
+			//	gap[i][j - 1][Y] = gap[i][j - 1][Y] + yarn[i][j][Y] - yarnx * yuragiw[i][j];
+			//	if (gap[i][j - 1][Y] < 0) {
+			//		gap[i][j - 1][Y] = 0;
+			//	}
+			//	yarn[i][j][Y] = yarnx * yuragiw[i][j];
+			//}
+			yuragiw[i][j] = yuragiw[i][j] / yuragi_range_setting + 1.0;
+			gap[i][j][X] *= yuragiw[i][j];
+			gap[i][j][Y] *= yuragiw[i][j];
+			yarn[i][j][X] *= yuragiw[i][j];
+			yarn[i][j][Y] *= yuragiw[i][j];
+		}
+	}
+
+	//横方向の糸の太さのつながりを確認
+	/*for (int j = 1; j <= 2 * Nx + 1; j++) {
+		for (int i = 1; i <= 2 * Ny + 1; i++) {	
+			if (i % 2 == 0 && j % 2 == 0) {
+				cout << "(" << i - 1 << "," << j << "), (" << i << "," << j << ")：" << gap[i - 1][j][Y] << ", " << yarn[i][j][Y] << endl;
+			}
+		}
+	}*/
 
 }
 
@@ -555,9 +565,10 @@ int main(int argc, char *argv[]) {
 	
 	clear();
 	Cloth();
+	ClothDraw();
 	//Shibori();
 	Dye();
-	ClothDraw();
+	Yuragi();
 
 	cout << "隙間：" << endl << "　縦糸間 gapy = " << gapy << endl << "　　　　 gapy = " << gapy << endl;
 	cout << "　縦糸間 gapx = " << gapx << endl << "　　　　 gapx = " << gapx << endl;

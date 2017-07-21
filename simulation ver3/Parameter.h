@@ -110,9 +110,9 @@ void Parameter(int parameter_setting) {
 			break;
 		case 2:
 			cout << "<デフォルト設定2>" << endl;
-			yarnx = yarny = 0.2; densityx = densityy = 100;
-			width_real = height_real = 20;
-			converting_rate = 40;
+			yarnx = yarny = 0.15; densityx = densityy = 120;
+			width_real = height_real = 100;
+			converting_rate = 10;
 			cout << "糸の太さ [mm] ：" << endl << "　縦糸(yarny) = " << yarny << endl << "　横糸(yarnx) = " << yarnx << endl;
 			cout << "密度 [本/inch] ：" << endl << "　縦糸密度 = " << densityy << endl << "　横糸密度 = " << densityx << endl;
 			cout << "布の大きさ [mm] ：" << endl << "　縦 = " << height_real << endl << "　横 = " << width_real << endl;

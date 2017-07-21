@@ -2162,7 +2162,7 @@ void PlainCal(int i, int j, int k) {
 
 
 	//õFI—¹ðŒ
-	double dThreshold = pow(10, -5);
+	double dThreshold = pow(10, -4);
 	if (i % 2 == 0 && j % 2 == 1) {
 		if (dcN_yarn > dThreshold || dcS_yarn > dThreshold || dcW_gap > dThreshold || dcE_gap > dThreshold) dCount[i][j][k]++;
 	}
