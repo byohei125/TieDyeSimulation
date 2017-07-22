@@ -68,6 +68,8 @@ double fw1, fw2;
 double yuragiwmax, yuragiwmin;
 double yuragi_range;//‚ä‚ç‚¬‚Ì•C1-yuragi_range ~ 1+yuragi_rangeC0.8~1.2‚İ‚½‚¢‚È
 double yuragi_range_setting;//‚ä‚ç‚¬—Ê‚ğyuragi_range‚É‚·‚é‚½‚ß
+double yuragi_sort[NN * NN];
+double yuragi_med;//‚ä‚ç‚¬—Ê‚Ì’†‰›’l
 
 //ˆ³”—
 double p[NN + 2][NN + 2][2];//ˆ³—Í

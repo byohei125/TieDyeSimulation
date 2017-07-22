@@ -7,6 +7,7 @@
 #include <time.h>
 #include <GL/glut.h>
 #include <conio.h>
+#include <algorithm>
 
 #include "Difinition.h"
 #include "Bitmap.h"
@@ -236,7 +237,7 @@ void Dye(void) {
 	}*/
 	//中心に滴下
 	//rA = floor((Nx + Ny)/2 /2);
-	rA = 80;//80
+	rA = 60;//80
 	cout << "滴下範囲の半径 rA = " << rA << endl;
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
@@ -316,11 +317,21 @@ void Yuragi(void) {
 	double mmax = 0;
 	//ゆらぎの幅（yuragiwの最低値～最大値）を設定
 	yuragiwmax = 0, yuragiwmin = NN;
+	int len = 0;
 	for (int i = 1; i <= 2 * Ny + 1; i++) {//すべてのセルでゆらぎ計算，i = 0においてゆらぎは0
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
 			YuragiCal(i, j);
+			yuragi_sort[len] = yuragiw[i][j];
+			len++;
 		}
 	}
+
+	//ゆらぎ量の中央値を求める
+	sort(yuragi_sort, yuragi_sort + len);
+	if (len % 2 == 0) yuragi_med = (yuragi_sort[len / 2 - 1] + yuragi_sort[len / 2]) / 2;
+	else yuragi_med = yuragi_sort[len / 2];
+	cout << "yuragi_med = " << yuragi_med << endl;
+
 	yuragi_range_setting = 1.0;
 	while (yuragiwmax / yuragi_range_setting > yuragi_range) {
 		yuragi_range_setting += 0.00001;
@@ -342,11 +353,25 @@ void Yuragi(void) {
 			//	}
 			//	yarn[i][j][Y] = yarnx * yuragiw[i][j];
 			//}
-			yuragiw[i][j] = yuragiw[i][j] / yuragi_range_setting + 1.0;
+			yuragiw[i][j] = yuragiw[i][j] / yuragi_range_setting + 1.0 - yuragi_med;
 			gap[i][j][X] *= yuragiw[i][j];
 			gap[i][j][Y] *= yuragiw[i][j];
 			yarn[i][j][X] *= yuragiw[i][j];
 			yarn[i][j][Y] *= yuragiw[i][j];
+
+			/*if (i % 2 == 0 && j % 2 == 0) {
+				if (i > 3 || j > 3) {
+					weft[i][j][X] *= yuragiw[i][j];
+					weft[i][j][Y] *= yuragiw[i][j];
+					warp[i][j][X] *= yuragiw[i][j];
+					warp[i][j][Y] *= yuragiw[i][j];
+				}
+			}
+			else if (i % 2 == 1 && j % 2 == 1) {
+				Gap[i][j][X] *= yuragiw[i][j];
+				Gap[i][j][Y] *= yuragiw[i][j];
+			}*/
+
 		}
 	}
 
@@ -565,10 +590,11 @@ int main(int argc, char *argv[]) {
 	
 	clear();
 	Cloth();
+	Yuragi();
 	ClothDraw();
 	//Shibori();
 	Dye();
-	Yuragi();
+	//Yuragi();
 
 	cout << "隙間：" << endl << "　縦糸間 gapy = " << gapy << endl << "　　　　 gapy = " << gapy << endl;
 	cout << "　縦糸間 gapx = " << gapx << endl << "　　　　 gapx = " << gapx << endl;

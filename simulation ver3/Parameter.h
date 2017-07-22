@@ -161,8 +161,9 @@ void Parameter(int parameter_setting) {
 			break;
 		case 2:
 			cout << "<デフォルト設定2(アンケートと同じ)>" << endl;
-			tajudo = 2; n = 3; e = 1;
-			yuragi_range = 0.2750;
+			//tajudo = 2; n = 3; e = 1;
+			tajudo = 4; n = M_PI / 3; e = 1;
+			yuragi_range = 0.01;
 			//yuragi_range = 0.2775;
 			cout << "多重度(tajudo) = " << tajudo << endl;
 			cout << "周波数係数(n) = " << n << endl;
