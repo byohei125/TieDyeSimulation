@@ -16,27 +16,22 @@ using namespace std;
 //---------------------------------------------------------------------------------------------------
 void YuragiCal(int i, int j) {
 	double I, J;
-	/*I = i / (2 * Ny + 1) / M_PI;
-	J = j / (2 * Nx + 1) / M_PI;*/
-	I = i / M_PI;
-	J = j / M_PI;
-	for (tajudo_i = 1; tajudo_i <= tajudo; tajudo_i++) {
+	I = i / M_PI / 4;
+	J = j / M_PI / 4;
+	ax = M_PI, bx = M_PI / 7, cx = M_PI / 7;
+	aw = 1.0, bw = M_PI / 3, cw = M_PI / 3;
 
-		//aw = 1.0, bw = M_PI / 3, cw = 1.0;
-		//fw1 = sin(i + aw*sin(bw*j) + (tajudo_i - 1)*cw);
-		//fw2 = sin(j + aw*sin(bw*i) + (tajudo_i - 1)*cw);
-		//yuragiw[i][j] += (sin(pow(n, (tajudo_i - 1)) * fw1) + sin(pow(n, (tajudo_i - 1)) * fw2)) / pow(n, e * (tajudo_i - 1));
-
-		//yuragiwmax = (yuragiw[i][j] >= yuragiwmax) ? yuragiw[i][j] : yuragiwmax;//Ç±ÇÍÇÕê‚ëŒïKóv!!
-		//yuragiwmin = (yuragiw[i][j] <= yuragiwmin) ? yuragiw[i][j] : yuragiwmin;
-
-
-		fw1 = sin(I + aw*sin(bw*J) + (tajudo_i - 1)*cw);
-		fw2 = sin(J + aw*sin(bw*I) + (tajudo_i - 1)*cw);
-		yuragiw[i][j] += (sin(pow(n, (tajudo_i - 1)) * fw1) + sin(pow(n, (tajudo_i - 1)) * fw2)) / pow(n, e * (tajudo_i - 1));
+	for (int l = 1; l <= tajudox; l++) {
+		fx1 = sin(I + ax*sin(bx*J) + (l - 1)*cx);
+		fx2 = sin(J + ax*sin(bx*I) + (l - 1)*cx);
+		yuragix[i][j] += (sin(pow(nx, (l - 1)) * fx1) + sin(pow(nx, (l - 1)) * fx2)) / pow(nx, ex * (l - 1));
+		yuragixmax = (yuragix[i][j] >= yuragixmax) ? yuragix[i][j] : yuragixmax;
+	}
+	for (int l = 1; l <= tajudow; l++) {
+		fw1 = sin(I + aw*sin(bw*J) + (l - 1)*cw);
+		fw2 = sin(J + aw*sin(bw*I) + (l - 1)*cw);
+		yuragiw[i][j] += (sin(pow(nw, (l - 1)) * fw1) + sin(pow(nw, (l - 1)) * fw2)) / pow(nw, ew * (l - 1));
 		yuragiwmax = (yuragiw[i][j] >= yuragiwmax) ? yuragiw[i][j] : yuragiwmax;
-
-
 	}
 
 }

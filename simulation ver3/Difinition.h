@@ -60,16 +60,22 @@ double Dg2;//糸 → 隙間，湿潤隙間へ
 double Dw;
 
 //ゆらぎ
+double yuragix[NN][NN];
+double yuragiy[NN][NN];
 double yuragiw[NN][NN];
+double ax, bx, cx;
+double ay, by, cy;
 double aw, bw, cw;
-int tajudo_i, tajudo;
-double n, e;
-double fw1, fw2;
+int tajudox, tajudow;
+double nx, ex, nw, ew;
+double fx1, fx2, fy1, fy2, fw1, fw2;
+double yuragixmax, yuragixmin;
+double yuragiymax, yuragiymin;
 double yuragiwmax, yuragiwmin;
-double yuragi_range;//ゆらぎの幅，1-yuragi_range ~ 1+yuragi_range，0.8~1.2みたいな
-double yuragi_range_setting;//ゆらぎ量をyuragi_rangeにするため
-double yuragi_sort[NN * NN];
-double yuragi_med;//ゆらぎ量の中央値
+double yuragix_range;//ゆらぎの幅，1-yuragi_range ~ 1+yuragi_range，0.8~1.2みたいな
+double yuragiw_range;//ゆらぎの幅，1-yuragi_range ~ 1+yuragi_range，0.8~1.2みたいな
+double yuragix_range_setting;//ゆらぎ量をyuragi_rangeにするため
+double yuragiw_range_setting;//ゆらぎ量をyuragi_rangeにするため
 
 //圧迫
 double p[NN + 2][NN + 2][2];//圧力
@@ -130,10 +136,10 @@ int I, J;
 double weft[NN + 2][NN + 2][2];//描画開始座標，横糸セルの左下角の座標値，0：X座標，1：Y座標
 double warp[NN + 2][NN + 2][2];//描画開始座標，縦糸セルの左下角の座標値，0：X座標，1：Y座標
 double Gap[NN + 2][NN + 2][2];//描画開始座標，布の隙間部分の四角形の左下角の座標値，0：X座標，1：Y座標
+double weft1[NN + 2][NN + 2][2];//描画開始座標，横糸セルの左下角の座標値，0：X座標，1：Y座標
+double warp1[NN + 2][NN + 2][2];//描画開始座標，縦糸セルの左下角の座標値，0：X座標，1：Y座標
+double Gap1[NN + 2][NN + 2][2];//描画開始座標，布の隙間部分の四角形の左下角の座標値，0：X座標，1：Y座標
 double dyeDraw[NN + 2][NN + 2][2];//描画用染料値
-
-//パラメータ設定(switch文)
-int parameter_setting;
 
 //織り方
 int weavepattern = 0;//Plain = 1, Twill = 2，Sateen = 3

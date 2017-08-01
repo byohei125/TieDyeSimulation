@@ -2162,7 +2162,7 @@ void PlainCal(int i, int j, int k) {
 
 
 	//染色終了条件
-	double dThreshold = pow(10, -4);//10^-4が無難，ある一定以上小さくするとなぞの円環が現れる
+	double dThreshold = pow(10, -4) * 3.5;//10^-4が無難，ある一定以上小さくするとなぞの円環が現れる
 	if (i % 2 == 0 && j % 2 == 1) {
 		if (dcN_yarn > dThreshold || dcS_yarn > dThreshold || dcW_gap > dThreshold || dcE_gap > dThreshold) dCount[i][j][k]++;
 	}
@@ -2172,9 +2172,10 @@ void PlainCal(int i, int j, int k) {
 	else if (i % 2 == 1 && j % 2 == 1) {
 		if (dcN_gap > dThreshold || dcS_gap > dThreshold || dcW_gap > dThreshold || dcE_gap > dThreshold) dCount[i][j][k]++;
 	}
+	double bcThreshold = pow(10, -3);
 	//毛細管作用とBurasによる計算が行われたかを計測
-	if (dq > dThreshold) bcCount[i][j][k]++;
-	if (dq1 > dThreshold) bcCount[i][j][k]++;
+	if (dq > bcThreshold) bcCount[i][j][k]++;
+	if (dq1 > bcThreshold) bcCount[i][j][k]++;
 	if (hpositivex > 0) bcCount[i][j][k]++;
 	if (hpositivey > 0) bcCount[i][j][k]++;
 	if (hnegativex > 0) bcCount[i][j][k]++;
@@ -2202,10 +2203,10 @@ void DrawPlain(int i, int j, int k) {
 		X2 = converting_rate * (Gap[i][j][X] + gap[i][j][X]); Y2 = converting_rate * Gap[i][j][Y];
 		X3 = converting_rate * (Gap[i][j][X] + gap[i][j][X]); Y3 = converting_rate * (Gap[i][j][Y] + gap[i][j][Y]);
 		X4 = converting_rate * Gap[i][j][X]; Y4 = converting_rate * (Gap[i][j][Y] + gap[i][j][Y]);
-		X1 = floor(X1); Y1 = floor(Y1);
+		/*X1 = floor(X1); Y1 = floor(Y1);
 		X2 = floor(X2); Y2 = floor(Y2);
 		X3 = floor(X3); Y3 = floor(Y3);
-		X4 = floor(X4); Y4 = floor(Y4);
+		X4 = floor(X4); Y4 = floor(Y4);*/
 
 		glPushMatrix();
 		glColor3d(1 - gapcolor, 1 - gapcolor, 1);
@@ -2227,10 +2228,10 @@ void DrawPlain(int i, int j, int k) {
 			X2 = converting_rate * (weft[i][j][X] + 0.5 * gap[i - 1][j][X] + yarn[i][j][X] + 0.5 * gap[i + 1][j][X]); Y2 = converting_rate * weft[i][j][Y];
 			X3 = converting_rate * (weft[i][j][X] + 0.5 * gap[i - 1][j][X] + yarn[i][j][X] + 0.5 * gap[i + 1][j][X]); Y3 = converting_rate * (weft[i][j][Y] + yarn[i][j][Y]);
 			X4 = converting_rate * weft[i][j][X]; Y4 = converting_rate * (weft[i][j][Y] + yarn[i][j][Y]);
-			X1 = floor(X1); Y1 = floor(Y1);
+			/*X1 = floor(X1); Y1 = floor(Y1);
 			X2 = floor(X2); Y2 = floor(Y2);
 			X3 = floor(X3); Y3 = floor(Y3);
-			X4 = floor(X4); Y4 = floor(Y4);
+			X4 = floor(X4); Y4 = floor(Y4);*/
 			glPushMatrix();
 			glColor3d(1 - dyeDraw[i][j][k], 1 - dyeDraw[i][j][k], 1);
 			//glColor3d(1 - c[i][j][k], 1 - c[i][j][k], 1);
@@ -2248,10 +2249,10 @@ void DrawPlain(int i, int j, int k) {
 			X2 = converting_rate * (warp[i][j][X] + yarn[i][j][X]); Y2 = converting_rate * warp[i][j][Y];
 			X3 = converting_rate * (warp[i][j][X] + yarn[i][j][X]); Y3 = converting_rate * (warp[i][j][Y] + 0.5 * gap[i][j - 1][Y] + yarn[i][j][Y] + 0.5 * gap[i][j + 1][Y]);
 			X4 = converting_rate * warp[i][j][X]; Y4 = converting_rate * (warp[i][j][Y] + 0.5 * gap[i][j - 1][Y] + yarn[i][j][Y] + 0.5 * gap[i][j + 1][Y]);
-			X1 = floor(X1); Y1 = floor(Y1);
+			/*X1 = floor(X1); Y1 = floor(Y1);
 			X2 = floor(X2); Y2 = floor(Y2);
 			X3 = floor(X3); Y3 = floor(Y3);
-			X4 = floor(X4); Y4 = floor(Y4);
+			X4 = floor(X4); Y4 = floor(Y4);*/
 			glPushMatrix();
 			glColor3d(1 - dyeDraw[i][j][k], 1 - dyeDraw[i][j][k], 1);
 			//glColor3d(1 - c[i][j][k], 1 - c[i][j][k], 1);
@@ -2271,10 +2272,10 @@ void DrawPlain(int i, int j, int k) {
 			X2 = converting_rate * (warp[i][j][X] + yarn[i][j][X]); Y2 = converting_rate * warp[i][j][Y];
 			X3 = converting_rate * (warp[i][j][X] + yarn[i][j][X]); Y3 = converting_rate * (warp[i][j][Y] + 0.5 * gap[i][j - 1][Y] + yarn[i][j][Y] + 0.5 * gap[i][j + 1][Y]);
 			X4 = converting_rate * warp[i][j][X]; Y4 = converting_rate * (warp[i][j][Y] + 0.5 * gap[i][j - 1][Y] + yarn[i][j][Y] + 0.5 * gap[i][j + 1][Y]);
-			X1 = floor(X1); Y1 = floor(Y1);
+			/*X1 = floor(X1); Y1 = floor(Y1);
 			X2 = floor(X2); Y2 = floor(Y2);
 			X3 = floor(X3); Y3 = floor(Y3);
-			X4 = floor(X4); Y4 = floor(Y4);
+			X4 = floor(X4); Y4 = floor(Y4);*/
 			glPushMatrix();
 			glColor3d(1 - dyeDraw[i][j][k], 1 - dyeDraw[i][j][k], 1);
 			//glColor3d(1 - c[i][j][k], 1 - c[i][j][k], 1);
@@ -2292,10 +2293,10 @@ void DrawPlain(int i, int j, int k) {
 			X2 = converting_rate * (weft[i][j][X] + 0.5 * gap[i - 1][j][X] + yarn[i][j][X] + 0.5 * gap[i + 1][j][X]); Y2 = converting_rate * weft[i][j][Y];
 			X3 = converting_rate * (weft[i][j][X] + 0.5 * gap[i - 1][j][X] + yarn[i][j][X] + 0.5 * gap[i + 1][j][X]); Y3 = converting_rate * (weft[i][j][Y] + yarn[i][j][Y]);
 			X4 = converting_rate * weft[i][j][X]; Y4 = converting_rate * (weft[i][j][Y] + yarn[i][j][Y]);
-			X1 = floor(X1); Y1 = floor(Y1);
+			/*X1 = floor(X1); Y1 = floor(Y1);
 			X2 = floor(X2); Y2 = floor(Y2);
 			X3 = floor(X3); Y3 = floor(Y3);
-			X4 = floor(X4); Y4 = floor(Y4);
+			X4 = floor(X4); Y4 = floor(Y4);*/
 			glPushMatrix();
 			glColor3d(1 - dyeDraw[i][j][k], 1 - dyeDraw[i][j][k], 1);
 			//glColor3d(1 - c[i][j][k], 1 - c[i][j][k], 1);
