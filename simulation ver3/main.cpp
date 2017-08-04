@@ -34,8 +34,6 @@ void clear(void) {
 				p[i][j][k] = 1;//大気圧1 atm
 				weft[i][j][k] = 0; warp[i][j][k] = 0;
 				Gap[i][j][k] = 0;
-				weft1[i][j][k] = 0; warp1[i][j][k] = 0;
-				Gap1[i][j][k] = 0;
 				for (int x = 0; x < 5; x++) WetDryFlag[i][j][k][x] = 0;
 				dCount[i][j][k] = 0;
 
@@ -43,7 +41,7 @@ void clear(void) {
 		}
 	}
 
-	cout << endl << "変数の初期化...COMPLETE" << endl;
+	cout << endl << "変数の初期化(clear)...COMPLETE" << endl;
 
 }
 
@@ -79,8 +77,8 @@ void Cloth(void) {
 	//Rx = floor(Rx + 0.5); Ry = floor(Ry + 0.5);
 
 	//糸セルと隙間セルの一辺の長さを定義
-	for (int i = 0; i <= (2 * Ny + 1); i++) {
-		for (int j = 0; j <= (2 * Nx + 1); j++) {
+	for (int i = 1; i <= (2 * Ny + 1); i++) {
+		for (int j = 1; j <= (2 * Nx + 1); j++) {
 			if (i % 2 == 0 && j % 2 == 1) {//横糸間の隙間
 				gap[i][j][X] = yarny;//セル幅
 				gap[i][j][Y] = gapx;//セル奥行，隙間の直径
@@ -116,7 +114,7 @@ void Cloth(void) {
 		}
 	}
 
-	cout << endl << "布の初期値設定...COMPLETE" << endl;
+	cout << endl << "布の初期値設定(Cloth)...COMPLETE" << endl;
 
 }
 
@@ -125,7 +123,7 @@ void Cloth(void) {
 //　　Desc : 布の圧迫の設定，ゆくゆくは絞りの設定
 //---------------------------------------------------------------------------------------------------
 void Shibori(void) {
-	
+
 	//初期圧迫位置の設定
 	double A1 = 0, A2 = 0, A3 = 0, A4 = 0;
 	int n = 0;
@@ -201,6 +199,8 @@ void Shibori(void) {
 		}
 	}*/
 
+	cout << endl << "絞り設定(Shibori)...COMPLETE" << endl;
+
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -209,8 +209,6 @@ void Shibori(void) {
 //---------------------------------------------------------------------------------------------------
 void Dye(void) {
 	//////////////////////////////////////染料の初期値の設定///////////////////////////////////////
-	cout << endl << "染料の初期値設定" << endl;
-
 	double rA;
 	//染色前の布の状態を変更
 	if (wet_or_dry == 1) {
@@ -264,8 +262,8 @@ void Dye(void) {
 		water[Ny + 1][Nx + 1][k] += 0.1;
 		c[Ny + 1][Nx + 1][k] = dye[Ny + 1][Nx + 1][k] / (water[Ny + 1][Nx + 1][k] + dye[Ny + 1][Nx + 1][k]);
 	}*/
-	
-	cout << "染料の初期値設定...COMPLETE" << endl;
+
+	cout << "染料の初期値設定(Dye)...COMPLETE" << endl;
 
 }
 
@@ -275,27 +273,35 @@ void Dye(void) {
 //---------------------------------------------------------------------------------------------------
 void ClothDraw(void) {
 
-	//初期値
-	weft[2][2][X] = 0; weft[2][2][Y] = 0.5 * gap[1][1][Y];
-	warp[2][2][X] = 0.5 * gap[1][1][X]; warp[2][2][Y] = 0;
-	Gap[1][1][X] = -0.5 * gap[1][1][X]; Gap[1][1][Y] = -0.5 * gap[1][1][Y];
-
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
 			if (i % 2 == 0 && j % 2 == 0) {
-				if (i > 3 || j > 3) {
-					weft[i][j][X] = weft[i - 2][j][X] + 0.5 * gap[i - 3][j][X] + yarn[i - 2][j][X] + 0.5 * gap[i - 1][j][X];
-					weft[i][j][Y] = weft[i][j - 2][Y] + yarn[i][j - 2][Y] + gap[i][j - 1][Y];
-					warp[i][j][X] = warp[i - 2][j][X] + yarn[i - 2][j][X] + gap[i - 1][j][X];
-					warp[i][j][Y] = warp[i][j - 2][Y] + 0.5 * gap[i][j - 3][Y] + yarn[i][j - 2][Y] + 0.5 * gap[i][j - 1][Y];
-				}
+				weft[i][j][X] = weft[i - 2][j][X] + 0.5 * gap[i - 3][j][X] + yarn[i - 2][j][X] + 0.5 * gap[i - 1][j][X];
+				weft[i][j][Y] = weft[i][j - 2][Y] + yarn[i][j - 2][Y] + gap[i][j - 1][Y];
+				warp[i][j][X] = warp[i - 2][j][X] + yarn[i - 2][j][X] + gap[i - 1][j][X];
+				warp[i][j][Y] = warp[i][j - 2][Y] + 0.5 * gap[i][j - 3][Y] + yarn[i][j - 2][Y] + 0.5 * gap[i][j - 1][Y];
+				//最左端と最下端の設定
+				weft[2][j][X] = 0;
+				weft[i][2][Y] = 0.5 * gap[1][1][Y];
+				warp[2][j][X] = 0.5 * gap[1][1][X];
+				warp[i][2][Y] = 0;
 			}
 			else if (i % 2 == 1 && j % 2 == 1) {
 				Gap[i][j][X] = Gap[i - 2][j][X] + gap[i - 2][j][X] + gap[i - 1][j][X];
 				Gap[i][j][Y] = Gap[i][j - 2][Y] + gap[i][j - 2][Y] + gap[i][j - 1][Y];
+				//最左端と最下端の設定
+				Gap[1][j][X] = -0.5 * gap[1][1][X];
+				Gap[i][1][Y] = -0.5 * gap[1][1][Y];
 			}
+			/*weft[i][j][X] -= 0.1;
+			weft[i][j][Y] -= 0.1;
+			warp[i][j][X] -= 0.1;
+			warp[i][j][Y] -= 0.1;
+			Gap[i][j][X] -= 0.1;
+			Gap[i][j][Y] -= 0.1;*/
 		}
 	}
+	
 
 	cout << "weft[2 * Ny][2 * Nx][X], [Y] = (" << weft[2 * Ny][2 * Nx][X] << ", " << weft[2 * Ny][2 * Nx][Y] << ")" << endl;
 	cout << "warp[2 * Ny][2 * Nx][X], [Y] = (" << warp[2 * Ny][2 * Nx][X] << ", " << warp[2 * Ny][2 * Nx][Y] << ")" << endl;
@@ -304,6 +310,8 @@ void ClothDraw(void) {
 	width = converting_rate * (Gap[2 * Ny + 1][2 * Nx + 1][X] + gap[2 * Ny + 1][2 * Nx + 1][X]);
 	height = converting_rate * (Gap[2 * Ny + 1][2 * Nx + 1][Y] + gap[2 * Ny + 1][2 * Nx + 1][Y]);
 	//width = floor(width); height = floor(height);
+
+	cout << "描画の位置設定(ClothDraw)...COMPLETE" << endl;
 
 }
 
@@ -324,7 +332,7 @@ void Yuragi(void) {
 		}
 	}
 	yuragix_range_setting = 1.0;
-	while (yuragiwmax / yuragix_range_setting > yuragix_range) {
+	while (yuragixmax / yuragix_range_setting > yuragix_range) {
 		yuragix_range_setting += 0.00001;
 	}
 	yuragiw_range_setting = 1.0;
@@ -347,48 +355,52 @@ void Yuragi(void) {
 
 	for (int i = 1; i <= 2 * Ny + 1; i++) {//i = 0において計算するとゆらぎが0になる
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
-
-			//if (i % 2 == 0 && j % 2 == 0) {//糸，布目
-			//	yuragiw[i][j] = yuragiw[i][j] / yuragi_range_setting + 1.0;
-			//	gap[i - 1][j][X] = gap[i - 1][j][X] + yarn[i][j][X] - yarny * yuragiw[i][j];
-			//	if (gap[i - 1][j][X] < 0) {
-			//		gap[i - 1][j][X] = 0;
-			//	}
-			//	yarn[i][j][X] = yarny * yuragiw[i][j];
-			//	gap[i][j - 1][Y] = gap[i][j - 1][Y] + yarn[i][j][Y] - yarnx * yuragiw[i][j];
-			//	if (gap[i][j - 1][Y] < 0) {
-			//		gap[i][j - 1][Y] = 0;
-			//	}
-			//	yarn[i][j][Y] = yarnx * yuragiw[i][j];
-			//}
-			//yuragiw[i][j] = yuragiw[i][j] / yuragi_range_setting + 1.0 - yuragi_med;
-			//cout << "yuragiw = " << yuragiw[i][j] << endl;
-
-			yuragix[i][j] = yuragix[i][j] - (yuragixmax + yuragixmin) / 2 + 1.0;
+			yuragix[i][j] = yuragix[i][j] - (yuragixmax + yuragixmin) / 2;
 			yuragiw[i][j] = yuragiw[i][j] - (yuragiwmax + yuragiwmin) / 2 + 1.0;
+			weft[i][j][X] += yuragix[i][j];
+			weft[i][j][Y] += yuragix[i][j];
+			warp[i][j][X] += yuragix[i][j];
+			warp[i][j][Y] += yuragix[i][j];
+			Gap[i][j][X] += yuragix[i][j];
+			Gap[i][j][Y] += yuragix[i][j];
 
 			gap[i][j][X] *= yuragiw[i][j];
 			gap[i][j][Y] *= yuragiw[i][j];
 			yarn[i][j][X] *= yuragiw[i][j];
 			yarn[i][j][Y] *= yuragiw[i][j];
-
-			weft[i][j][X] *= yuragix[i][j];
-			weft[i][j][Y] *= yuragix[i][j];
-			warp[i][j][X] *= yuragix[i][j];
-			warp[i][j][Y] *= yuragix[i][j];
-			Gap[i][j][X] *= yuragix[i][j];
-			Gap[i][j][Y] *= yuragix[i][j];
 		}
 	}
+	
+	for (int i = 1; i <= 2 * Ny + 1; i++) {
+		for (int j = 1; j <= 2 * Nx + 1; j++) {
+			weftsize[i][j][X] = 0.5 * gap[i - 1][j][X] + yarn[i][j][X] + 0.5 * gap[i + 1][j][X];
+			weftsize[i][j][Y] = yarn[i][j][Y];
+			warpsize[i][j][X] = yarn[i][j][X];
+			warpsize[i][j][Y] = 0.5 * gap[i][j - 1][Y] + yarn[i][j][Y] + 0.5 * gap[i][j + 1][Y];
+		}
+	}
+	/*double sukima;
+	for (int i = 1; i <= 2 * Ny + 1; i++) {
+		for (int j = 1; j <= 2 * Nx + 1; j++) {
+			if (i % 2 == 0 && j % 2 == 0) {
+				sukima = weft[i][j][X] - (weft[i - 2][j][X] + weftsize[i - 2][j][X]);
+				if (sukima > 0) weftsize[i - 2][j][X] += sukima;
+				sukima = warp[i][j][Y] - (warp[i][j - 2][Y] + warpsize[i][j - 2][Y]);
+				if (sukima > 0) warpsize[i][j - 2][Y] += sukima;
+			}
+		}
+	}*/
 
 	//横方向の糸の太さのつながりを確認
 	/*for (int j = 1; j <= 2 * Nx + 1; j++) {
-		for (int i = 1; i <= 2 * Ny + 1; i++) {	
+		for (int i = 1; i <= 2 * Ny + 1; i++) {
 			if (i % 2 == 0 && j % 2 == 0) {
 				cout << "(" << i - 1 << "," << j << "), (" << i << "," << j << ")：" << gap[i - 1][j][Y] << ", " << yarn[i][j][Y] << endl;
 			}
 		}
 	}*/
+
+	cout << "ゆらぎ設定(Yuragi)...COMPLETE" << endl;
 
 }
 
@@ -397,7 +409,7 @@ void Yuragi(void) {
 //　　Desc : ウィンドウ1への描画
 //---------------------------------------------------------------------------------------------------
 void Display1(void) {
-	
+
 	//画面クリア
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -408,7 +420,7 @@ void Display1(void) {
 	for (t = 1; t <= loop_times; t++) {
 		dTerminator = 0;
 		bcTerminator = 0;
-		
+
 		//着目セルの近傍のセルの状態(湿潤 or 乾燥)を確認
 		for (int i = 1; i <= 2 * Ny + 1; i++) {
 			for (int j = 1; j <= 2 * Nx + 1; j++) {
@@ -440,7 +452,7 @@ void Display1(void) {
 				}
 			}
 		}
-		
+
 		if (t == (loop_times * 0.3) || t == (loop_times * 0.6) || t == (loop_times * 0.9)) cout << ".";
 
 		for (int i = 1; i <= 2 * Ny + 1; i++) {
@@ -494,7 +506,14 @@ void Display1(void) {
 				for (int i = 1; i <= 2 * Ny + 1; i++) {
 					for (int j = 1; j <= 2 * Nx + 1; j++) {
 						for (int k = 0; k <= 1; k++) {
-							DrawPlain(i, j, k);
+							DrawGapPlain(i, j, k);
+						}
+					}
+				}
+				for (int i = 1; i <= 2 * Ny + 1; i++) {
+					for (int j = 1; j <= 2 * Nx + 1; j++) {
+						for (int k = 0; k <= 1; k++) {
+							DrawYarnPlain(i, j, k);
 						}
 					}
 				}
@@ -505,7 +524,7 @@ void Display1(void) {
 	}
 
 	cout << "染色...COMPLETE" << endl;
-	
+
 	//染料量計算
 	/*for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
@@ -534,11 +553,18 @@ void Display1(void) {
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
 			for (int k = 0; k <= 1; k++) {
-				DrawPlain(i, j, k);//セル大きさに沿って、セルを配置
+				DrawGapPlain(i, j, k);//セル大きさに沿って、セルを配置
 			}
 		}
 	}
-	
+	for (int i = 1; i <= 2 * Ny + 1; i++) {
+		for (int j = 1; j <= 2 * Nx + 1; j++) {
+			for (int k = 0; k <= 1; k++) {
+				DrawYarnPlain(i, j, k);//セル大きさに沿って、セルを配置
+			}
+		}
+	}
+
 	cout << "描画...COMPLETE" << endl;
 	WriteBitmap("Simulation output.bmp", width, height);
 	cout << "保存...COMPLETE" << endl;
@@ -554,7 +580,7 @@ void Display1(void) {
 void Display2(void) {
 
 	//画面クリア
-	glClear(GL_COLOR_BUFFER_BIT);	
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	//圧力分布
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
@@ -607,7 +633,7 @@ int main(int argc, char *argv[]) {
 
 	cout << "隙間：" << endl << "　縦糸間 gapy = " << gapy << endl;
 	cout << "　横糸間 gapx = " << gapx << endl;
-	cout << "布内の糸の本数：" << endl << "　縦糸 Ny = " << Ny  << "　(セル数 2Ny+1 = " << 2 * Ny + 1 << ")"
+	cout << "布内の糸の本数：" << endl << "　縦糸 Ny = " << Ny << "　(セル数 2Ny+1 = " << 2 * Ny + 1 << ")"
 		<< endl << "　横糸 Nx = " << Nx << "　(セル数 2Nx+1 = " << 2 * Nx + 1 << ")" << endl;
 	cout << "セルの標準体積：" << endl << "　糸：" << yarnx * yarny * (yarnx + yarny) / 2 << endl;
 	cout << "　隙間：" << gapx * yarny * (yarnx + yarny) / 2 << endl;

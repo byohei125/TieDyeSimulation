@@ -15,7 +15,7 @@ using namespace std;
 //　　Desc : 平織，染色の計算の判断，毛細管なのか拡散なのか
 //---------------------------------------------------------------------------------------------------
 void PlainCal(int i, int j, int k) {
-	
+
 	hx = hx1 = hy = hy1 = 0;//値の初期化
 	//セルの水分量が飽和量を超えた時点で（どんなに少量でも）隣のセルに水分を受け渡す
 	hpositivex = hnegativex = hpositivey = hnegativey = 0;
@@ -213,7 +213,7 @@ void PlainCal(int i, int j, int k) {
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -250,59 +250,59 @@ void PlainCal(int i, int j, int k) {
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
 			else {
-					//2つの隙間セルは乾燥 → 毛細管作用
-					hx1 = hx;
-					while (hx1 > 0) {
-						hpositivex++;
-						if (i + hpositivex > NN) break;
-						if (hx1 < gap[i + hpositivex][j][X]) {
-							hpositivex--;
-							hx1 = 0;
-						}
-						else hx1 -= gap[i + hpositivex][j][X];
+				//2つの隙間セルは乾燥 → 毛細管作用
+				hx1 = hx;
+				while (hx1 > 0) {
+					hpositivex++;
+					if (i + hpositivex > NN) break;
+					if (hx1 < gap[i + hpositivex][j][X]) {
+						hpositivex--;
+						hx1 = 0;
 					}
-					while (hx > 0) {
-						hnegativex++;
-						if (i - hnegativex <= 0) break;
-						if (hx < gap[i - hnegativex][j][X]) {
-							hnegativex--;
-							hx = 0;
-						}
-						else hx -= gap[i - hnegativex][j][X];
+					else hx1 -= gap[i + hpositivex][j][X];
+				}
+				while (hx > 0) {
+					hnegativex++;
+					if (i - hnegativex <= 0) break;
+					if (hx < gap[i - hnegativex][j][X]) {
+						hnegativex--;
+						hx = 0;
 					}
-					ddyewater = (dye[i][j][k] + water[i][j][k] - capacity[i][j]) / 2;
-					if (hpositivex != 0) {
-						dye[i][j][k] -= ddyewater * c[i][j][k];
-						water[i][j][k] -= ddyewater * (1 - c[i][j][k]);
-						for (int l = 1; l <= hpositivex; l++) {
-							ddyewater1 = (ddyewater / (0.5 * hpositivex * (hpositivex + 1)) * (hpositivex + 1 - l));
-							if (i + l < NN + 2) {
-								dye[i + l][j][k] += ddyewater1 * c[i][j][k];
-								water[i + l][j][k] += ddyewater1 * (1 - c[i][j][k]);
-								c[i + l][j][k] = dye[i + l][j][k] / (dye[i + l][j][k] + water[i + l][j][k]);
-							}
-						}
-					}
-					if (hnegativex != 0) {
-						dye[i][j][k] -= ddyewater * c[i][j][k];
-						water[i][j][k] -= ddyewater * (1 - c[i][j][k]);
-						for (int l = 1; l <= hnegativex; l++) {
-							ddyewater1 = (ddyewater / (0.5 * hnegativex * (hnegativex + 1)) * (hnegativex + 1 - l));
-							if (i - l >= 0) {
-								dye[i - l][j][k] += ddyewater1 * c[i][j][k];
-								water[i - l][j][k] += ddyewater1 * (1 - c[i][j][k]);
-								c[i - l][j][k] = dye[i - l][j][k] / (dye[i - l][j][k] + water[i - l][j][k]);
-							}
+					else hx -= gap[i - hnegativex][j][X];
+				}
+				ddyewater = (dye[i][j][k] + water[i][j][k] - capacity[i][j]) / 2;
+				if (hpositivex != 0) {
+					dye[i][j][k] -= ddyewater * c[i][j][k];
+					water[i][j][k] -= ddyewater * (1 - c[i][j][k]);
+					for (int l = 1; l <= hpositivex; l++) {
+						ddyewater1 = (ddyewater / (0.5 * hpositivex * (hpositivex + 1)) * (hpositivex + 1 - l));
+						if (i + l < NN + 2) {
+							dye[i + l][j][k] += ddyewater1 * c[i][j][k];
+							water[i + l][j][k] += ddyewater1 * (1 - c[i][j][k]);
+							c[i + l][j][k] = dye[i + l][j][k] / (dye[i + l][j][k] + water[i + l][j][k]);
 						}
 					}
 				}
+				if (hnegativex != 0) {
+					dye[i][j][k] -= ddyewater * c[i][j][k];
+					water[i][j][k] -= ddyewater * (1 - c[i][j][k]);
+					for (int l = 1; l <= hnegativex; l++) {
+						ddyewater1 = (ddyewater / (0.5 * hnegativex * (hnegativex + 1)) * (hnegativex + 1 - l));
+						if (i - l >= 0) {
+							dye[i - l][j][k] += ddyewater1 * c[i][j][k];
+							water[i - l][j][k] += ddyewater1 * (1 - c[i][j][k]);
+							c[i - l][j][k] = dye[i - l][j][k] / (dye[i - l][j][k] + water[i - l][j][k]);
+						}
+					}
+				}
+			}
 		}
-		else if (water[i][j][k] > 0){
+		else if (water[i][j][k] > 0) {
 			if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][1] == 1) {
 				if (c[i][j][k] > 0) {
 					dcW_gap = dt *  DgW * ((c[i][j][k] - c[i - 1][j][k]) / (pow((gap[i - 1][j][X] + gap[i][j][X]) / 2, 2)));//←
@@ -312,14 +312,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -332,7 +332,7 @@ void PlainCal(int i, int j, int k) {
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -345,7 +345,7 @@ void PlainCal(int i, int j, int k) {
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -365,14 +365,14 @@ void PlainCal(int i, int j, int k) {
 					dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 					c[i][j][k] -= dcE_yarn;
 					dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-					
+
 				}
 				if (dcW_yarn > 0) {
 					c[i - 1][j][k] += dcW_yarn;
 					dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 					c[i][j][k] -= dcW_yarn;
 					dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-					
+
 				}
 			}
 		}
@@ -385,7 +385,7 @@ void PlainCal(int i, int j, int k) {
 					dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 					c[i][j][k] -= dcE_yarn;
 					dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-					
+
 				}
 			}
 			//(i - 1)：浸透, Buras
@@ -419,7 +419,7 @@ void PlainCal(int i, int j, int k) {
 					dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 					c[i][j][k] -= dcW_yarn;
 					dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-					
+
 				}
 			}
 			//(i + 1)：浸透, Buras
@@ -444,7 +444,7 @@ void PlainCal(int i, int j, int k) {
 				c[i + 1][j][k] = dye[i + 1][j][k] / (dye[i + 1][j][k] + water[i + 1][j][k]);
 			}
 		}
-		else{
+		else {
 			if ((dye[i][j][k] + water[i][j][k]) > 0) {
 				elapsedTime = (water[i + 1][j][k] > 0) ? (-(capacity[i + 1][j] / initialVelocity) * log(1 - ((water[i + 1][j][k] + dye[i + 1][j][k]) / capacity[i + 1][j]))) : 0;
 				dq = capacity[i + 1][j] * (1 - exp(-(initialVelocity / capacity[i + 1][j]) * dt)) * exp(-(initialVelocity / capacity[i + 1][j]) * elapsedTime);
@@ -490,136 +490,136 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcN_gap > 0) {
 						c[i][j + 1][k] += dcN_gap;
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
 			else if (WetDryFlag[i][j][k][2] == 1) {
-					//乾燥している方(j - 1)へ毛細管作用
-					while (hy > 0) {
-						hnegativey++;
-						if (j - hnegativey <= 0) break;//配列外参照を回避
-						if (hy < gap[i][j - hnegativey][Y]) {
-							hnegativey--;
-							hy = 0;
-						}
-						else hy -= gap[i][j - hnegativey][Y];
+				//乾燥している方(j - 1)へ毛細管作用
+				while (hy > 0) {
+					hnegativey++;
+					if (j - hnegativey <= 0) break;//配列外参照を回避
+					if (hy < gap[i][j - hnegativey][Y]) {
+						hnegativey--;
+						hy = 0;
 					}
-					if (hnegativey != 0) {
-						ddyewater = dye[i][j][k] + water[i][j][k] - capacity[i][j];
-						dye[i][j][k] -= ddyewater * c[i][j][k];
-						water[i][j][k] -= ddyewater * (1 - c[i][j][k]);
-						for (int l = 1; l <= hnegativey; l++) {
-							ddyewater1 = (ddyewater / (0.5 * hnegativey * (hnegativey + 1)) * (hnegativey + 1 - l));
-							if (j - l >= 0) {
-								dye[i][j - l][k] += ddyewater1 * c[i][j][k];
-								water[i][j - l][k] += ddyewater1 * (1 - c[i][j][k]);
-								c[i][j - l][k] = dye[i][j - l][k] / (dye[i][j - l][k] + water[i][j - l][k]);
-							}
-						}
-					}
-					//湿潤している方(j + 1)へ拡散計算
-					if (c[i][j][k] > 0) {
-						dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//↑
-						if (dcN_gap > 0) {
-							c[i][j + 1][k] += dcN_gap;
-							dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
-							c[i][j][k] -= dcN_gap;
-							dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-							
+					else hy -= gap[i][j - hnegativey][Y];
+				}
+				if (hnegativey != 0) {
+					ddyewater = dye[i][j][k] + water[i][j][k] - capacity[i][j];
+					dye[i][j][k] -= ddyewater * c[i][j][k];
+					water[i][j][k] -= ddyewater * (1 - c[i][j][k]);
+					for (int l = 1; l <= hnegativey; l++) {
+						ddyewater1 = (ddyewater / (0.5 * hnegativey * (hnegativey + 1)) * (hnegativey + 1 - l));
+						if (j - l >= 0) {
+							dye[i][j - l][k] += ddyewater1 * c[i][j][k];
+							water[i][j - l][k] += ddyewater1 * (1 - c[i][j][k]);
+							c[i][j - l][k] = dye[i][j - l][k] / (dye[i][j - l][k] + water[i][j - l][k]);
 						}
 					}
 				}
+				//湿潤している方(j + 1)へ拡散計算
+				if (c[i][j][k] > 0) {
+					dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//↑
+					if (dcN_gap > 0) {
+						c[i][j + 1][k] += dcN_gap;
+						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
+						c[i][j][k] -= dcN_gap;
+						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
+
+					}
+				}
+			}
 			else if (WetDryFlag[i][j][k][3] == 1) {
-					//乾燥している方(j + 1)へ毛細管作用
-					while (hy > 0) {
-						hpositivey++;
-						if (j + hpositivey > NN) break;
-						if (hy < gap[i][j + hpositivey][Y]) {
-							hpositivey--;
-							hy = 0;
-						}
-						else hy -= gap[i][j + hpositivey][Y];
+				//乾燥している方(j + 1)へ毛細管作用
+				while (hy > 0) {
+					hpositivey++;
+					if (j + hpositivey > NN) break;
+					if (hy < gap[i][j + hpositivey][Y]) {
+						hpositivey--;
+						hy = 0;
 					}
-					if (hpositivey != 0) {
-						ddyewater = dye[i][j][k] + water[i][j][k] - capacity[i][j];
-						dye[i][j][k] -= ddyewater * c[i][j][k];
-						water[i][j][k] -= ddyewater * (1 - c[i][j][k]);
-						for (int l = 1; l <= hpositivey; l++) {
-							ddyewater1 = (ddyewater / (0.5 * hpositivey * (hpositivey + 1)) * (hpositivey + 1 - l));
-							if (j + l < NN + 2) {
-								dye[i][j + l][k] += ddyewater1 * c[i][j][k];
-								water[i][j + l][k] += ddyewater1 * (1 - c[i][j][k]);
-								c[i][j + l][k] = dye[i][j + l][k] / (dye[i][j + l][k] + water[i][j + l][k]);
-							}
-						}
-					}
-					//湿潤している方(j - 1)へ拡散計算
-					if (c[i][j][k] > 0) {
-						dcS_gap = dt *  DgS * ((c[i][j][k] - c[i][j - 1][k]) / (pow((gap[i][j - 1][Y] + gap[i][j][Y]) / 2, 2)));//↓
-						if (dcS_gap > 0) {
-							c[i][j - 1][k] += dcS_gap;
-							dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
-							c[i][j][k] -= dcS_gap;
-							dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-							
+					else hy -= gap[i][j + hpositivey][Y];
+				}
+				if (hpositivey != 0) {
+					ddyewater = dye[i][j][k] + water[i][j][k] - capacity[i][j];
+					dye[i][j][k] -= ddyewater * c[i][j][k];
+					water[i][j][k] -= ddyewater * (1 - c[i][j][k]);
+					for (int l = 1; l <= hpositivey; l++) {
+						ddyewater1 = (ddyewater / (0.5 * hpositivey * (hpositivey + 1)) * (hpositivey + 1 - l));
+						if (j + l < NN + 2) {
+							dye[i][j + l][k] += ddyewater1 * c[i][j][k];
+							water[i][j + l][k] += ddyewater1 * (1 - c[i][j][k]);
+							c[i][j + l][k] = dye[i][j + l][k] / (dye[i][j + l][k] + water[i][j + l][k]);
 						}
 					}
 				}
+				//湿潤している方(j - 1)へ拡散計算
+				if (c[i][j][k] > 0) {
+					dcS_gap = dt *  DgS * ((c[i][j][k] - c[i][j - 1][k]) / (pow((gap[i][j - 1][Y] + gap[i][j][Y]) / 2, 2)));//↓
+					if (dcS_gap > 0) {
+						c[i][j - 1][k] += dcS_gap;
+						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
+						c[i][j][k] -= dcS_gap;
+						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
+
+					}
+				}
+			}
 			else {
-					//2つの隙間セルは乾燥 → 毛細管作用
-					hy1 = hy;
-					while (hy1 > 0) {
-						hpositivey++;
-						if (j + hpositivey > NN) break;
-						if (hy1 < gap[i][j + hpositivey][Y]) {
-							hpositivey--;
-							hy1 = 0;
-						}
-						else hy1 -= gap[i][j + hpositivey][Y];
+				//2つの隙間セルは乾燥 → 毛細管作用
+				hy1 = hy;
+				while (hy1 > 0) {
+					hpositivey++;
+					if (j + hpositivey > NN) break;
+					if (hy1 < gap[i][j + hpositivey][Y]) {
+						hpositivey--;
+						hy1 = 0;
 					}
-					while (hy > 0) {
-						hnegativey++;
-						if (j - hnegativey <= 0) break;
-						if (hy < gap[i][j - hnegativey][Y]) {
-							hnegativey--;
-							hy = 0;
-						}
-						else hy -= gap[i][j - hnegativey][Y];
+					else hy1 -= gap[i][j + hpositivey][Y];
+				}
+				while (hy > 0) {
+					hnegativey++;
+					if (j - hnegativey <= 0) break;
+					if (hy < gap[i][j - hnegativey][Y]) {
+						hnegativey--;
+						hy = 0;
 					}
-					ddyewater = (dye[i][j][k] + water[i][j][k] - capacity[i][j]) / 2;
-					if (hpositivey != 0) {
-						dye[i][j][k] -= ddyewater * c[i][j][k];
-						water[i][j][k] -= ddyewater * (1 - c[i][j][k]);
-						for (int l = 1; l <= hpositivey; l++) {
-							ddyewater1 = (ddyewater / (0.5 * hpositivey * (hpositivey + 1)) * (hpositivey + 1 - l));
-							if (j + l < NN + 2) {
-								dye[i][j + l][k] += ddyewater1 * c[i][j][k];
-								water[i][j + l][k] += ddyewater1 * (1 - c[i][j][k]);
-								c[i][j + l][k] = dye[i][j + l][k] / (dye[i][j + l][k] + water[i][j + l][k]);
-							}
-						}
-					}
-					if (hnegativey != 0) {
-						dye[i][j][k] -= ddyewater * c[i][j][k];
-						water[i][j][k] -= ddyewater * (1 - c[i][j][k]);
-						for (int l = 1; l <= hnegativey; l++) {
-							ddyewater1 = (ddyewater / (0.5 * hnegativey * (hnegativey + 1)) * (hnegativey + 1 - l));
-							if (j - l >= 0) {
-								dye[i][j - l][k] += ddyewater1 * c[i][j][k];
-								water[i][j - l][k] += ddyewater1 * (1 - c[i][j][k]);
-								c[i][j - l][k] = dye[i][j - l][k] / (dye[i][j - l][k] + water[i][j - l][k]);
-							}
+					else hy -= gap[i][j - hnegativey][Y];
+				}
+				ddyewater = (dye[i][j][k] + water[i][j][k] - capacity[i][j]) / 2;
+				if (hpositivey != 0) {
+					dye[i][j][k] -= ddyewater * c[i][j][k];
+					water[i][j][k] -= ddyewater * (1 - c[i][j][k]);
+					for (int l = 1; l <= hpositivey; l++) {
+						ddyewater1 = (ddyewater / (0.5 * hpositivey * (hpositivey + 1)) * (hpositivey + 1 - l));
+						if (j + l < NN + 2) {
+							dye[i][j + l][k] += ddyewater1 * c[i][j][k];
+							water[i][j + l][k] += ddyewater1 * (1 - c[i][j][k]);
+							c[i][j + l][k] = dye[i][j + l][k] / (dye[i][j + l][k] + water[i][j + l][k]);
 						}
 					}
 				}
+				if (hnegativey != 0) {
+					dye[i][j][k] -= ddyewater * c[i][j][k];
+					water[i][j][k] -= ddyewater * (1 - c[i][j][k]);
+					for (int l = 1; l <= hnegativey; l++) {
+						ddyewater1 = (ddyewater / (0.5 * hnegativey * (hnegativey + 1)) * (hnegativey + 1 - l));
+						if (j - l >= 0) {
+							dye[i][j - l][k] += ddyewater1 * c[i][j][k];
+							water[i][j - l][k] += ddyewater1 * (1 - c[i][j][k]);
+							c[i][j - l][k] = dye[i][j - l][k] / (dye[i][j - l][k] + water[i][j - l][k]);
+						}
+					}
+				}
+			}
 		}
 		else if (water[i][j][k] > 0) {
 			if (WetDryFlag[i][j][k][2] == 1 && WetDryFlag[i][j][k][3] == 1) {
@@ -631,14 +631,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcN_gap > 0) {
 						c[i][j + 1][k] += dcN_gap;
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -651,7 +651,7 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -664,7 +664,7 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -688,34 +688,34 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcS_gap > 0) {
 						c[i][j - 1][k] += dcS_gap;
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcW_gap > 0) {
 						c[i - 1][j][k] += dcW_gap;
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 				//他の層への濃度・水分・染料移動
 				ddyewater = dye[i][j][k] + water[i][j][k] - capacity[i][j];
 			}
-			
+
 			//近傍の隙間セルのうち，3つが湿潤のとき，湿潤セルへの水分移動はなし
 			else if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][1] == 1 && WetDryFlag[i][j][k][2] == 1) {
 				//乾燥(j - 1)へ毛細管作用
@@ -751,21 +751,21 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcW_gap > 0) {
 						c[i - 1][j][k] += dcW_gap;
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -803,21 +803,21 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcW_gap > 0) {
 						c[i - 1][j][k] += dcW_gap;
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -855,21 +855,21 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcS_gap > 0) {
 						c[i][j - 1][k] += dcS_gap;
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -908,21 +908,21 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcS_gap > 0) {
 						c[i][j - 1][k] += dcS_gap;
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcW_gap > 0) {
 						c[i - 1][j][k] += dcW_gap;
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -983,14 +983,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1048,14 +1048,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1113,14 +1113,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1179,14 +1179,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcW_gap > 0) {
 						c[i - 1][j][k] += dcW_gap;
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1244,14 +1244,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcW_gap > 0) {
 						c[i - 1][j][k] += dcW_gap;
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1310,14 +1310,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcS_gap > 0) {
 						c[i][j - 1][k] += dcS_gap;
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1398,7 +1398,7 @@ void PlainCal(int i, int j, int k) {
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1477,7 +1477,7 @@ void PlainCal(int i, int j, int k) {
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1556,7 +1556,7 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1635,7 +1635,7 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1759,28 +1759,28 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcS_gap > 0) {
 						c[i][j - 1][k] += dcS_gap;
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcW_gap > 0) {
 						c[i - 1][j][k] += dcW_gap;
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1797,21 +1797,21 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcW_gap > 0) {
 						c[i - 1][j][k] += dcW_gap;
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1826,21 +1826,21 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcW_gap > 0) {
 						c[i - 1][j][k] += dcW_gap;
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1855,21 +1855,21 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcS_gap > 0) {
 						c[i][j - 1][k] += dcS_gap;
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1884,21 +1884,21 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcS_gap > 0) {
 						c[i][j - 1][k] += dcS_gap;
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcW_gap > 0) {
 						c[i - 1][j][k] += dcW_gap;
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1914,14 +1914,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1935,14 +1935,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcW_gap > 0) {
 						c[i - 1][j][k] += dcW_gap;
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1956,14 +1956,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcE_gap > 0) {
 						c[i + 1][j][k] += dcE_gap;
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1977,14 +1977,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcW_gap > 0) {
 						c[i - 1][j][k] += dcW_gap;
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -1998,14 +1998,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcW_gap > 0) {
 						c[i - 1][j][k] += dcW_gap;
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -2019,14 +2019,14 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 					if (dcS_gap > 0) {
 						c[i][j - 1][k] += dcS_gap;
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -2041,7 +2041,7 @@ void PlainCal(int i, int j, int k) {
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -2054,7 +2054,7 @@ void PlainCal(int i, int j, int k) {
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -2067,7 +2067,7 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j + 1][k] = (c[i][j + 1][k] / (1 - c[i][j + 1][k])) * water[i][j + 1][k];
 						c[i][j][k] -= dcN_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -2080,7 +2080,7 @@ void PlainCal(int i, int j, int k) {
 						dye[i][j - 1][k] = (c[i][j - 1][k] / (1 - c[i][j - 1][k])) * water[i][j - 1][k];
 						c[i][j][k] -= dcS_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-						
+
 					}
 				}
 			}
@@ -2184,128 +2184,131 @@ void PlainCal(int i, int j, int k) {
 }
 
 //---------------------------------------------------------------------------------------------------
-//　　DrawPlain
+//　　DrawGapPlain
 //　　Desc : 描画，平織，隙間の描画なし
 //---------------------------------------------------------------------------------------------------
-void DrawPlain(int i, int j, int k) {
+void DrawGapPlain(int i, int j, int k) {
 
-	I = i / 2; J = j / 2;
-	double X1, Y1, X2, Y2, X3, Y3, X4, Y4;
+	double gap_coordinate[4][2];//隙間の座標値，第一引数は0:左下，1:右下，2:右上，3:左上，第二引数は0:X，1:Y
+
+	//描画座標値の計算
+	//隙間だけわざと大きく設定
+	gap_coordinate[0][X] = Gap[i][j][X] - 0.5 * gap[i][j][X];
+	gap_coordinate[0][Y] = Gap[i][j][Y] - 0.5 * gap[i][j][Y];
+	gap_coordinate[1][X] = gap_coordinate[0][X] + gap[i][j][X] * 1;
+	gap_coordinate[1][Y] = gap_coordinate[0][Y];
+	gap_coordinate[2][X] = gap_coordinate[1][X];
+	gap_coordinate[2][Y] = gap_coordinate[0][Y] + gap[i][j][Y] * 1;
+	gap_coordinate[3][X] = gap_coordinate[0][X];
+	gap_coordinate[3][Y] = gap_coordinate[2][Y];
+
+	for (int l = 0; l < 4; l++) {
+		for (int m = 0; m < 2; m++) {
+			gap_coordinate[l][m] *= converting_rate;
+			gap_coordinate[l][m] = floor(gap_coordinate[l][m]);
+		}
+	}
+
 	//布の構造の隙間（縦糸と横糸の格子の隙間）
-	double gapcolor = 0;
+	double gapcolor = 0;//周囲の糸の平均の色にする
+	gapcolor = (dyeDraw[i + 1][j + 1][k] + dyeDraw[i - 1][j - 1][k] + dyeDraw[i + 1][j - 1][k] + dyeDraw[i - 1][j + 1][k]) / 4;
+	glColor3d(1 - gapcolor, 1 - gapcolor, 1);
+	glColor3d(1, 0, 0);
 	if (i % 2 == 1 && j % 2 == 1) {
-		//周囲の糸の平均の色にする，4
-		gapcolor = (dyeDraw[i + 1][j + 1][k] + dyeDraw[i - 1][j - 1][k] + dyeDraw[i + 1][j - 1][k] + dyeDraw[i - 1][j + 1][k]) / 4;
-		//gapcolor = (c[i + 1][j + 1][k] + c[i - 1][j - 1][k] + c[i + 1][j - 1][k] + c[i - 1][j + 1][k]) / 4;
-		//gapcolor = 100 * (water[i + 1][j + 1][k] + water[i - 1][j - 1][k] + water[i + 1][j - 1][k] + water[i - 1][j + 1][k]) / 4;
-		
-		X1 = converting_rate * Gap[i][j][X]; Y1 = converting_rate * Gap[i][j][Y];
-		X2 = converting_rate * (Gap[i][j][X] + gap[i][j][X]); Y2 = converting_rate * Gap[i][j][Y];
-		X3 = converting_rate * (Gap[i][j][X] + gap[i][j][X]); Y3 = converting_rate * (Gap[i][j][Y] + gap[i][j][Y]);
-		X4 = converting_rate * Gap[i][j][X]; Y4 = converting_rate * (Gap[i][j][Y] + gap[i][j][Y]);
-		/*X1 = floor(X1); Y1 = floor(Y1);
-		X2 = floor(X2); Y2 = floor(Y2);
-		X3 = floor(X3); Y3 = floor(Y3);
-		X4 = floor(X4); Y4 = floor(Y4);*/
-
 		glPushMatrix();
-		glColor3d(1 - gapcolor, 1 - gapcolor, 1);
-		glBegin(GL_QUADS);//(I,J)座標において，1つの糸セルにつき，その右上に隙間を描画
-		glVertex2d(X1, Y1);//長方形の左下の角
-		glVertex2d(X2, Y2);//右下
-		glVertex2d(X3, Y3);//右上
-		glVertex2d(X4, Y4);//左上
-		
+		glBegin(GL_QUADS);
+		glVertex2d(gap_coordinate[0][X], gap_coordinate[0][Y]);//左下
+		glVertex2d(gap_coordinate[1][X], gap_coordinate[1][Y]);//右下
+		glVertex2d(gap_coordinate[2][X], gap_coordinate[2][Y]);//右上
+		glVertex2d(gap_coordinate[3][X], gap_coordinate[3][Y]);//左上
 		glEnd();
 		glPopMatrix();
 	}
 
-	//描画の順番で縦糸と横糸の重なりを表現するしかない
-	//glVertex3dでzの値を変化させて差をつけてもうまくいかない
+}
+//---------------------------------------------------------------------------------------------------
+//　　DrawYarnPlain
+//　　Desc : 描画，平織，隙間の描画なし
+//---------------------------------------------------------------------------------------------------
+void DrawYarnPlain(int i, int j, int k) {
+
+	double warp_coordinate[4][2];//縦糸の座標値，第一引数は0:左下，1:右下，2:右上，3:左上，第二引数は0:X，1:Y
+	double weft_coordinate[4][2];//横糸の座標値，第一引数は0:左下，1:右下，2:右上，3:左上，第二引数は0:X，1:Y	
+
+	//描画座標値の計算
+	weft_coordinate[0][X] = weft[i][j][X];
+	weft_coordinate[0][Y] = weft[i][j][Y];
+	weft_coordinate[1][X] = weft_coordinate[0][X] + weftsize[i][j][X];
+	weft_coordinate[1][Y] = weft_coordinate[0][Y];
+	weft_coordinate[2][X] = weft_coordinate[1][X];
+	weft_coordinate[2][Y] = weft_coordinate[0][Y] + weftsize[i][j][Y];
+	weft_coordinate[3][X] = weft_coordinate[0][X];
+	weft_coordinate[3][Y] = weft_coordinate[2][Y];
+
+	warp_coordinate[0][X] = warp[i][j][X];
+	warp_coordinate[0][Y] = warp[i][j][Y];
+	warp_coordinate[1][X] = warp_coordinate[0][X] + warpsize[i][j][X];
+	warp_coordinate[1][Y] = warp_coordinate[0][Y];
+	warp_coordinate[2][X] = warp_coordinate[1][X];
+	warp_coordinate[2][Y] = warp_coordinate[0][Y] + warpsize[i][j][Y];
+	warp_coordinate[3][X] = warp_coordinate[0][X];
+	warp_coordinate[3][Y] = warp_coordinate[2][Y];
+
+	for (int l = 0; l < 4; l++) {
+		for (int m = 0; m < 2; m++) {
+			weft_coordinate[l][m] *= converting_rate;
+			warp_coordinate[l][m] *= converting_rate;
+			weft_coordinate[l][m] = floor(weft_coordinate[l][m]);
+			warp_coordinate[l][m] = floor(warp_coordinate[l][m]);
+		}
+	}
+
+	//糸の描画
+	glColor3d(1 - dyeDraw[i][j][k], 1 - dyeDraw[i][j][k], 1);
 	if (k == 0) {//一層目
 		if ((i % 4 == 0 && j % 4 == 0) || (i % 4 == 2 && j % 4 == 2)) {//横糸，下			
-			X1 = converting_rate * weft[i][j][X]; Y1 = converting_rate * weft[i][j][Y];
-			X2 = converting_rate * (weft[i][j][X] + 0.5 * gap[i - 1][j][X] + yarn[i][j][X] + 0.5 * gap[i + 1][j][X]); Y2 = converting_rate * weft[i][j][Y];
-			X3 = converting_rate * (weft[i][j][X] + 0.5 * gap[i - 1][j][X] + yarn[i][j][X] + 0.5 * gap[i + 1][j][X]); Y3 = converting_rate * (weft[i][j][Y] + yarn[i][j][Y]);
-			X4 = converting_rate * weft[i][j][X]; Y4 = converting_rate * (weft[i][j][Y] + yarn[i][j][Y]);
-			/*X1 = floor(X1); Y1 = floor(Y1);
-			X2 = floor(X2); Y2 = floor(Y2);
-			X3 = floor(X3); Y3 = floor(Y3);
-			X4 = floor(X4); Y4 = floor(Y4);*/
 			glPushMatrix();
-			glColor3d(1 - dyeDraw[i][j][k], 1 - dyeDraw[i][j][k], 1);
-			//glColor3d(1 - c[i][j][k], 1 - c[i][j][k], 1);
-			//glColor3d(1 - 100 * water[i][j][k], 1 - 100 * water[i][j][k], 1);
+			glColor3d(0, 1, 0);
 			glBegin(GL_QUADS);
-			glVertex2d(X1, Y1);//長方形の左下の角
-			glVertex2d(X2, Y2);//右下
-			glVertex2d(X3, Y3);//右上
-			glVertex2d(X4, Y4);//左上
+			glVertex2d(weft_coordinate[0][X], weft_coordinate[0][Y]);//左下
+			glVertex2d(weft_coordinate[1][X], weft_coordinate[1][Y]);//右下
+			glVertex2d(weft_coordinate[2][X], weft_coordinate[2][Y]);//右上
+			glVertex2d(weft_coordinate[3][X], weft_coordinate[3][Y]);//左上
 			glEnd();
 			glPopMatrix();
 		}
 		else if ((i % 4 == 0 && j % 4 == 2) || (i % 4 == 2 && j % 4 == 0)) {//縦糸，下
-			X1 = converting_rate * warp[i][j][X]; Y1 = converting_rate * warp[i][j][Y];
-			X2 = converting_rate * (warp[i][j][X] + yarn[i][j][X]); Y2 = converting_rate * warp[i][j][Y];
-			X3 = converting_rate * (warp[i][j][X] + yarn[i][j][X]); Y3 = converting_rate * (warp[i][j][Y] + 0.5 * gap[i][j - 1][Y] + yarn[i][j][Y] + 0.5 * gap[i][j + 1][Y]);
-			X4 = converting_rate * warp[i][j][X]; Y4 = converting_rate * (warp[i][j][Y] + 0.5 * gap[i][j - 1][Y] + yarn[i][j][Y] + 0.5 * gap[i][j + 1][Y]);
-			/*X1 = floor(X1); Y1 = floor(Y1);
-			X2 = floor(X2); Y2 = floor(Y2);
-			X3 = floor(X3); Y3 = floor(Y3);
-			X4 = floor(X4); Y4 = floor(Y4);*/
 			glPushMatrix();
-			glColor3d(1 - dyeDraw[i][j][k], 1 - dyeDraw[i][j][k], 1);
-			//glColor3d(1 - c[i][j][k], 1 - c[i][j][k], 1);
-			//glColor3d(1 - 100 * water[i][j][k], 1 - 100 * water[i][j][k], 1);
+			glColor3d(0, 0, 1);
 			glBegin(GL_QUADS);
-			glVertex2d(X1, Y1);//長方形の左下の角
-			glVertex2d(X2, Y2);//右下
-			glVertex2d(X3, Y3);//右上
-			glVertex2d(X4, Y4);//左上
+			glVertex2d(warp_coordinate[0][X], warp_coordinate[0][Y]);//左下
+			glVertex2d(warp_coordinate[1][X], warp_coordinate[1][Y]);//右下
+			glVertex2d(warp_coordinate[2][X], warp_coordinate[2][Y]);//右上
+			glVertex2d(warp_coordinate[3][X], warp_coordinate[3][Y]);//左上
 			glEnd();
 			glPopMatrix();
 		}
 	}
 	else if (k == 1) {//二層目
 		if ((i % 4 == 0 && j % 4 == 0) || (i % 4 == 2 && j % 4 == 2)) {//縦糸，上
-			X1 = converting_rate * warp[i][j][X]; Y1 = converting_rate * warp[i][j][Y];
-			X2 = converting_rate * (warp[i][j][X] + yarn[i][j][X]); Y2 = converting_rate * warp[i][j][Y];
-			X3 = converting_rate * (warp[i][j][X] + yarn[i][j][X]); Y3 = converting_rate * (warp[i][j][Y] + 0.5 * gap[i][j - 1][Y] + yarn[i][j][Y] + 0.5 * gap[i][j + 1][Y]);
-			X4 = converting_rate * warp[i][j][X]; Y4 = converting_rate * (warp[i][j][Y] + 0.5 * gap[i][j - 1][Y] + yarn[i][j][Y] + 0.5 * gap[i][j + 1][Y]);
-			/*X1 = floor(X1); Y1 = floor(Y1);
-			X2 = floor(X2); Y2 = floor(Y2);
-			X3 = floor(X3); Y3 = floor(Y3);
-			X4 = floor(X4); Y4 = floor(Y4);*/
 			glPushMatrix();
-			glColor3d(1 - dyeDraw[i][j][k], 1 - dyeDraw[i][j][k], 1);
-			//glColor3d(1 - c[i][j][k], 1 - c[i][j][k], 1);
-			//glColor3d(1 - 100 * water[i][j][k], 1 - 100 * water[i][j][k], 1);
+			glColor3d(0, 0, 1);
 			glBegin(GL_QUADS);
-			glVertex2d(X1, Y1);//長方形の左下の角
-			glVertex2d(X2, Y2);//右下
-			glVertex2d(X3, Y3);//右上
-			glVertex2d(X4, Y4);//左上
+			glVertex2d(warp_coordinate[0][X], warp_coordinate[0][Y]);//左下
+			glVertex2d(warp_coordinate[1][X], warp_coordinate[1][Y]);//右下
+			glVertex2d(warp_coordinate[2][X], warp_coordinate[2][Y]);//右上
+			glVertex2d(warp_coordinate[3][X], warp_coordinate[3][Y]);//左上
 			glEnd();
 			glPopMatrix();
 		}
 		else if ((i % 4 == 0 && j % 4 == 2) || (i % 4 == 2 && j % 4 == 0)) {//横糸，上
-			X1 = converting_rate * weft[i][j][X]; Y1 = converting_rate * weft[i][j][Y];
-			X2 = converting_rate * (weft[i][j][X] + 0.5 * gap[i - 1][j][X] + yarn[i][j][X] + 0.5 * gap[i + 1][j][X]); Y2 = converting_rate * weft[i][j][Y];
-			X3 = converting_rate * (weft[i][j][X] + 0.5 * gap[i - 1][j][X] + yarn[i][j][X] + 0.5 * gap[i + 1][j][X]); Y3 = converting_rate * (weft[i][j][Y] + yarn[i][j][Y]);
-			X4 = converting_rate * weft[i][j][X]; Y4 = converting_rate * (weft[i][j][Y] + yarn[i][j][Y]);
-			/*X1 = floor(X1); Y1 = floor(Y1);
-			X2 = floor(X2); Y2 = floor(Y2);
-			X3 = floor(X3); Y3 = floor(Y3);
-			X4 = floor(X4); Y4 = floor(Y4);*/
 			glPushMatrix();
-			glColor3d(1 - dyeDraw[i][j][k], 1 - dyeDraw[i][j][k], 1);
-			//glColor3d(1 - c[i][j][k], 1 - c[i][j][k], 1);
-			//glColor3d(1 - 100 * water[i][j][k], 1 - 100 * water[i][j][k], 1);
+			glColor3d(0, 1, 0);
 			glBegin(GL_QUADS);
-			glVertex2d(X1, Y1);//長方形の左下の角
-			glVertex2d(X2, Y2);//右下
-			glVertex2d(X3, Y3);//右上
-			glVertex2d(X4, Y4);//左上
+			glVertex2d(weft_coordinate[0][X], weft_coordinate[0][Y]);//左下
+			glVertex2d(weft_coordinate[1][X], weft_coordinate[1][Y]);//右下
+			glVertex2d(weft_coordinate[2][X], weft_coordinate[2][Y]);//右上
+			glVertex2d(weft_coordinate[3][X], weft_coordinate[3][Y]);//左上
 			glEnd();
 			glPopMatrix();
 		}

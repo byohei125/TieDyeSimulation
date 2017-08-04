@@ -16,7 +16,7 @@ using namespace std;
 //---------------------------------------------------------------------------------------------------
 void Parameter() {
 
-	int cloth_setting, yuragi_setting;
+	int cloth_setting, position_yuragi_setting, thickness_yuragi_setting;
 	double densitymin, densitymax;//0<2r<m，隙間の大きさが正かつ糸の太さより小さい
 
 	cout << "布の初期値を設定しますか？（0：する，1：設定1，2：設定2...）"; cin >> cloth_setting;
@@ -56,8 +56,8 @@ void Parameter() {
 	case 3:
 		cout << "<デフォルト設定3>" << endl;
 		yarnx = 0.15; yarny = 0.15; densityx = 120; densityy = 120;
-		width_real = height_real = 25;
-		converting_rate = 40;
+		width_real = height_real = 5;
+		converting_rate = 200;
 		cout << "糸の太さ [mm] ：" << endl << "　縦糸(yarny) = " << yarny << endl << "　横糸(yarnx) = " << yarnx << endl;
 		cout << "密度 [本/inch] ：" << endl << "　縦糸密度 = " << densityy << endl << "　横糸密度 = " << densityx << endl;
 		cout << "布の大きさ [mm] ：" << endl << "　縦 = " << height_real << endl << "　横 = " << width_real << endl;
@@ -65,44 +65,61 @@ void Parameter() {
 		break;
 	}
 
-	cout << endl << "ゆらぎパラメータを設定しますか？（0：する，1：設定1...，9：ゆらぎなし）"; cin >> yuragi_setting;
-	switch (yuragi_setting) {
+	cout << endl << "位置のゆらぎを設定しますか？（0：なし，1：設定1...，9：入力）"; cin >> position_yuragi_setting;
+	switch (position_yuragi_setting) {
 	case 0:
+		cout << "ゆらぎなし" << endl;
+		tajudox = nx = ex = yuragix_range = 0;
+		break;
+	case 1:
+		cout << "<デフォルト設定1>" << endl;
+		ax = M_PI, bx = M_PI / 7, cx = M_PI / 7;
+		tajudox = 2; nx = M_PI / 2; ex = 1;
+		yuragix_range = 0.1;
+		cout << "　ax = " << ax << endl;
+		cout << "　bx = " << bx << endl;
+		cout << "　cx = " << cx << endl;
+		cout << "　多重度(tajudox) = " << tajudox << endl;
+		cout << "　周波数係数(nx) = " << nx << endl;
+		cout << "　ε(ex) = " << ex << endl;
+		cout << "　ゆらぎ幅(yuragix_range) = " << yuragix_range << "(" << 1 - yuragix_range << "～" << 1 + yuragix_range << ")" << endl;
+		break;	
+	case 9:
 		cout << "<カスタム設定>" << endl;
-		cout << "位置ゆらぎ" << endl;
 		cout << "　多重度(tajudox) = "; cin >> tajudox;
 		cout << "　周波数係数(nx) = "; cin >> nx;
 		cout << "　ε(ex) = "; cin >> ex;
 		cout << "　ゆらぎ幅(yuragix_range) = "; cin >> yuragix_range;
 		cout << "　" << 1 - yuragix_range << "～" << 1 + yuragix_range << endl;
-		cout << "太さゆらぎ" << endl;
-		cout << "　多重度(tajudow) = "; cin >> tajudow;
-		cout << "　周波数係数(nw) = "; cin >> nw;
-		cout << "　ε(ew) = "; cin >> ew;
-		cout << "　ゆらぎ幅(yuragiw_range) = "; cin >> yuragiw_range;
-		cout << "　" << 1 - yuragiw_range << "～" << 1 + yuragiw_range << endl;
+		break;
+	}
+
+	cout << endl << "太さのゆらぎを設定しますか？（0：なし，1：設定1...，9：入力）"; cin >> thickness_yuragi_setting;
+	switch (thickness_yuragi_setting) {
+	case 0:
+		cout << "ゆらぎなし" << endl;
+		tajudow = nw = ew = yuragiw_range = 0;
 		break;
 	case 1:
 		cout << "<デフォルト設定1>" << endl;
-		tajudox = 2; nx = M_PI / 2; ex = 1;
-		yuragix_range = 0.03;
 		tajudow = 4; nw = M_PI / 3; ew = 1;
-		yuragiw_range = 0.03;
-		cout << "位置ゆらぎ" << endl;
-		cout << "　多重度(tajudox) = " << tajudox << endl;
-		cout << "　周波数係数(nx) = " << nx << endl;
-		cout << "　ε(ex) = " << ex << endl;
-		cout << "　ゆらぎ幅(yuragix_range) = " << yuragix_range << "(" << 1 - yuragix_range << "～" << 1 + yuragix_range << ")" << endl;
-		cout << "太さゆらぎ" << endl;
+		aw = 1.0, bw = M_PI / 3, cw = M_PI / 3;
+		yuragiw_range = 0.1;
+		cout << "　aw = " << aw << endl;
+		cout << "　bw = " << bw << endl;
+		cout << "　cw = " << cw << endl;
 		cout << "　多重度(tajudow) = " << tajudow << endl;
 		cout << "　周波数係数(nw) = " << nw << endl;
 		cout << "　ε(ew) = " << ew << endl;
 		cout << "　ゆらぎ幅(yuragiw_range) = " << yuragiw_range << "(" << 1 - yuragiw_range << "～" << 1 + yuragiw_range << ")" << endl;
 		break;
 	case 9:
-		cout << "ゆらぎなし" << endl;
-		tajudox = nx = ex = 0;
-		tajudow = nw = ew = 0;
+		cout << "<カスタム設定>" << endl;
+		cout << "　多重度(tajudow) = "; cin >> tajudow;
+		cout << "　周波数係数(nw) = "; cin >> nw;
+		cout << "　ε(ew) = "; cin >> ew;
+		cout << "　ゆらぎ幅(yuragiw_range) = "; cin >> yuragiw_range;
+		cout << "　" << 1 - yuragiw_range << "～" << 1 + yuragiw_range << endl;
 		break;
 	}
 

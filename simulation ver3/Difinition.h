@@ -1,9 +1,7 @@
 #pragma once
 #define NN 1000//布の一辺の長さ（糸+隙間）の最大値，2*Nxや2*Nyより大きくなくてはならない
 int Nx, Ny;//布内の横糸の本数，縦糸の本数
-int width, height;//ウィンドウ大きさ・座標
-int converting_rate;//シミュレーション（計算，実際の布サイズ）と画面表示の変換比率
-int width_real, height_real;//実際の布のサイズ，10 cmとか
+
 
 double c[NN + 2][NN + 2][2];//セルの染料の濃度（0：緯糸, 1：経糸）（t)
 //濃度の拡散計算のとき使用
@@ -130,15 +128,17 @@ int wet_or_dry;//初期状態において布は湿潤か乾燥か(0：乾燥，1：湿潤)
 
 
 //描画用
+int width, height;//ウィンドウ大きさ・座標
+int converting_rate;//シミュレーション（計算，実際の布サイズ）と画面表示の変換比率
+int width_real, height_real;//実際の布のサイズ，10 cmとか
 int YARNx, YARNy;//【描画用】糸セルの一辺（直径）
 double GAPx, GAPy;//【描画用】隙間セルの一辺（直径）
 int I, J;
 double weft[NN + 2][NN + 2][2];//描画開始座標，横糸セルの左下角の座標値，0：X座標，1：Y座標
 double warp[NN + 2][NN + 2][2];//描画開始座標，縦糸セルの左下角の座標値，0：X座標，1：Y座標
 double Gap[NN + 2][NN + 2][2];//描画開始座標，布の隙間部分の四角形の左下角の座標値，0：X座標，1：Y座標
-double weft1[NN + 2][NN + 2][2];//描画開始座標，横糸セルの左下角の座標値，0：X座標，1：Y座標
-double warp1[NN + 2][NN + 2][2];//描画開始座標，縦糸セルの左下角の座標値，0：X座標，1：Y座標
-double Gap1[NN + 2][NN + 2][2];//描画開始座標，布の隙間部分の四角形の左下角の座標値，0：X座標，1：Y座標
+double weftsize[NN + 2][NN + 2][2];//横糸の大きさ，0：幅，1：高さ
+double warpsize[NN + 2][NN + 2][2];//横糸の大きさ，0：幅，1：高さ
 double dyeDraw[NN + 2][NN + 2][2];//描画用染料値
 
 //織り方

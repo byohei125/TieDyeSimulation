@@ -16,10 +16,8 @@ using namespace std;
 //---------------------------------------------------------------------------------------------------
 void YuragiCal(int i, int j) {
 	double I, J;
-	I = i / M_PI / 4;
-	J = j / M_PI / 4;
-	ax = M_PI, bx = M_PI / 7, cx = M_PI / 7;
-	aw = 1.0, bw = M_PI / 3, cw = M_PI / 3;
+	I = i / M_PI / 3;
+	J = j / M_PI / 3;
 
 	for (int l = 1; l <= tajudox; l++) {
 		fx1 = sin(I + ax*sin(bx*J) + (l - 1)*cx);
