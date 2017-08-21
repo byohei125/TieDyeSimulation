@@ -136,11 +136,6 @@ void Shibori(void) {
 				p0_i[n] = i; p0_j[n] = j;//初期圧迫位置を記録
 				n++;
 			}
-			/*else if (j < A3 && j > A4) {
-				p[i][j][X] = 1.3; p[i][j][Y] = 1.3;
-				p0_i[n] = i; p0_j[n] = j;
-				n++;
-			}*/
 		}
 	}
 
@@ -182,7 +177,7 @@ void Shibori(void) {
 	}
 
 	//ゆらぎと圧力に基づいてセルの許容量を再計算
-	/*for (int i = 0; i <= (2 * Ny + 1); i++) {
+	for (int i = 0; i <= (2 * Ny + 1); i++) {
 		for (int j = 0; j <= (2 * Nx + 1); j++) {
 			if (i % 2 == 0 && j % 2 == 1) {//横糸間の隙間
 				capacity[i][j] = gap[i][j][X] * gap[i][j][Y] * gap[i][j][Z];
@@ -197,7 +192,7 @@ void Shibori(void) {
 				capacity[i][j] = yarn[i][j][X] * yarn[i][j][Y] * yarn[i][j][Z];
 			}
 		}
-	}*/
+	}
 
 	cout << endl << "絞り設定(Shibori)...COMPLETE" << endl;
 
@@ -222,39 +217,38 @@ void Dye(void) {
 	}
 	//板で斜めに防染した位置よりも右上に円状に滴下
 	double A;
-	/*for (int i = Ny; i <= 2 * Ny + 1; i++) {
+	rA = 5;
+	for (int i = Ny; i <= 2 * Ny + 1; i++) {
 		for (int j = Nx; j <= 2 * Nx + 1; j++) {
 			for (int k = 0; k <= 1; k++) {
-				A = (i - 0.65 * 2 * Ny) * (i - 0.65 * 2 * Ny) + (j - 0.65 * 2 * Nx) * (j - 0.65 * 2 * Nx);
+				A = (i - 0.6 * 2 * Ny) * (i - 0.6 * 2 * Ny) + (j - 0.6 * 2 * Nx) * (j - 0.6 * 2 * Nx);
 				if (A <= rA * rA) {
 					dye[i][j][k] += 0.1;
 					water[i][j][k] += 0.1;
 					c[i][j][k] = dye[i][j][k] / (water[i][j][k] + dye[i][j][k]);
+					cout << "(" << i << ", " << j << ")\t";
 				}
 			}
 		}
-	}*/
+	}
 	//中心に滴下
-	rA = 60;
+	/*rA = 60;
 	cout << "滴下範囲の半径 rA = " << rA << endl;
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
 			for (int k = 0; k <= 1; k++) {
-
 				if (i % 2 == 1 || j % 2 == 1) {
 					A = (i - Ny) * (i - Ny) + (j - Nx) * (j - Nx);
 					if (A <= rA * rA) {
-						dye[i][j][k] += 0.1;//0.1
+						dye[i][j][k] += 0.1;
 						water[i][j][k] += 0.1;
 						c[i][j][k] = dye[i][j][k] / (water[i][j][k] + dye[i][j][k]);
 						dyewater += (dye[i][j][k] + water[i][j][k]);
-						//cout << "(" << i << ", " << j << ")\t";
 					}
 				}
-
 			}
 		}
-	}
+	}*/
 	cout << "染料溶液量：" << dyewater << endl;
 	//中心1点のみに滴下
 	/*for (int k = 0; k <= 1; k++) {
@@ -379,7 +373,7 @@ void Yuragi(void) {
 			warpsize[i][j][Y] = 0.5 * gap[i][j - 1][Y] + yarn[i][j][Y] + 0.5 * gap[i][j + 1][Y];
 		}
 	}
-	/*double sukima;
+	double sukima;
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
 			if (i % 2 == 0 && j % 2 == 0) {
@@ -389,17 +383,8 @@ void Yuragi(void) {
 				if (sukima > 0) warpsize[i][j - 2][Y] += sukima;
 			}
 		}
-	}*/
-
-	//横方向の糸の太さのつながりを確認
-	/*for (int j = 1; j <= 2 * Nx + 1; j++) {
-		for (int i = 1; i <= 2 * Ny + 1; i++) {
-			if (i % 2 == 0 && j % 2 == 0) {
-				cout << "(" << i - 1 << "," << j << "), (" << i << "," << j << ")：" << gap[i - 1][j][Y] << ", " << yarn[i][j][Y] << endl;
-			}
-		}
-	}*/
-
+	}
+	
 	cout << "ゆらぎ設定(Yuragi)...COMPLETE" << endl;
 
 }
@@ -434,6 +419,25 @@ void Display1(void) {
 					else if (k == 1 && water[i][j][k - 1] >= capacity[i][j] * 1.0) WetDryFlag[i][j][k][4] = 1;*/
 					dCount[i][j][k] = 0;
 					bcCount[i][j][k] = 0;
+				}
+			}
+		}
+
+		for (int i = 1; i <= 2 * Ny + 1; i++) {
+			for (int j = 1; j <= 2 * Nx + 1; j++) {
+				for (int k = 0; k <= 1; k++) {
+					if (p[i][j][k] > 1.0 && p[i][j][k] < 1.5) {
+						PlateBoundaryCal(i, j, k);
+					}
+				}
+			}
+		}
+		for (int i = 2 * Ny + 1; i >= 1; i--) {
+			for (int j = 2 * Nx + 1; j >= 1; j--) {
+				for (int k = 1; k >= 0; k--) {
+					if (p[i][j][k] > 1.0 && p[i][j][k] < 1.5) {
+						PlateBoundaryCal(i, j, k);
+					}
 				}
 			}
 		}
@@ -586,7 +590,6 @@ void Display2(void) {
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
 			for (int k = 0; k <= 1; k++) {
-				PressureCheck(i, j, k);
 			}
 		}
 	}
@@ -627,8 +630,8 @@ int main(int argc, char *argv[]) {
 	clear();
 	Cloth();
 	ClothDraw();//ゆらぎなしで描画位置を計算
-	Yuragi();
-	//Shibori();
+	Shibori();
+	Yuragi();	
 	Dye();
 
 	cout << "隙間：" << endl << "　縦糸間 gapy = " << gapy << endl;

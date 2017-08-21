@@ -11,6 +11,44 @@
 using namespace std;
 
 //---------------------------------------------------------------------------------------------------
+//　　PlateBoundaryCal
+//　　Desc :	板で防染されたときの，板の境界部における染料の流れ・浸透
+//---------------------------------------------------------------------------------------------------
+void PlateBoundaryCal(int i, int j, int k) {
+
+	//着目セルに対して，等圧力のセルを抽出
+	int p_equal_i[9] = {}, p_equal_j[9] = {};
+	int n = 0;
+	for (int l = -1; l <= 1; l++) {
+		for (int m = -1; m <= 1; m++) {
+			if (p[i][j][k] == p[i + l][j + m][k]) {
+				p_equal_i[n] = i + l;
+				p_equal_j[n] = j + m;
+				n++;
+			}
+		}
+	}
+	if (n > 0) {
+		double dyesum = 0, csum = 0, watersum = 0;
+		for (int l = 0; l < n; l++) {
+			dyesum += dye[p_equal_i[l]][p_equal_j[l]][k];
+			csum += c[p_equal_i[l]][p_equal_j[l]][k];
+			watersum += water[p_equal_i[l]][p_equal_j[l]][k];
+		}
+		dyesum /= n;
+		csum /= n;
+		watersum /= n;
+		for (int l = 0; l < n; l++) {
+			dye[p_equal_i[l]][p_equal_j[l]][k] = dyesum;
+			c[p_equal_i[l]][p_equal_j[l]][k] = csum;
+			water[p_equal_i[l]][p_equal_j[l]][k] = watersum;
+		}
+	}
+
+}
+
+
+//---------------------------------------------------------------------------------------------------
 //　　PlainCal
 //　　Desc : 平織，染色の計算の判断，毛細管なのか拡散なのか
 //---------------------------------------------------------------------------------------------------
@@ -21,7 +59,6 @@ void PlainCal(int i, int j, int k) {
 	hpositivex = hnegativex = hpositivey = hnegativey = 0;
 	r = 0;
 	dq = dq1 = 0;
-	//for (int x = 0; x < 5; x++) WetDryFlag[i][j][k][x] = 0;//M2第5回打ち合わせではこれを有効にさせてしまっていたため，きれいな結果が出た
 
 	//隙間 → 隙間，隙間 → 糸における拡散移動量を計算
 	dcN = dcS = dcW = dcE = 0;
@@ -332,7 +369,6 @@ void PlainCal(int i, int j, int k) {
 						dye[i + 1][j][k] = (c[i + 1][j][k] / (1 - c[i + 1][j][k])) * water[i + 1][j][k];
 						c[i][j][k] -= dcE_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-
 					}
 				}
 			}
@@ -345,7 +381,6 @@ void PlainCal(int i, int j, int k) {
 						dye[i - 1][j][k] = (c[i - 1][j][k] / (1 - c[i - 1][j][k])) * water[i - 1][j][k];
 						c[i][j][k] -= dcW_gap;
 						dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-
 					}
 				}
 			}
@@ -2193,12 +2228,12 @@ void DrawGapPlain(int i, int j, int k) {
 
 	//描画座標値の計算
 	//隙間だけわざと大きく設定
-	gap_coordinate[0][X] = Gap[i][j][X] - 0.5 * gap[i][j][X];
-	gap_coordinate[0][Y] = Gap[i][j][Y] - 0.5 * gap[i][j][Y];
-	gap_coordinate[1][X] = gap_coordinate[0][X] + gap[i][j][X] * 1;
+	gap_coordinate[0][X] = Gap[i][j][X] - gap[i][j][X];
+	gap_coordinate[0][Y] = Gap[i][j][Y] - gap[i][j][Y];
+	gap_coordinate[1][X] = gap_coordinate[0][X] + gap[i][j][X] * 3;
 	gap_coordinate[1][Y] = gap_coordinate[0][Y];
 	gap_coordinate[2][X] = gap_coordinate[1][X];
-	gap_coordinate[2][Y] = gap_coordinate[0][Y] + gap[i][j][Y] * 1;
+	gap_coordinate[2][Y] = gap_coordinate[0][Y] + gap[i][j][Y] * 3;
 	gap_coordinate[3][X] = gap_coordinate[0][X];
 	gap_coordinate[3][Y] = gap_coordinate[2][Y];
 
@@ -2213,7 +2248,9 @@ void DrawGapPlain(int i, int j, int k) {
 	double gapcolor = 0;//周囲の糸の平均の色にする
 	gapcolor = (dyeDraw[i + 1][j + 1][k] + dyeDraw[i - 1][j - 1][k] + dyeDraw[i + 1][j - 1][k] + dyeDraw[i - 1][j + 1][k]) / 4;
 	glColor3d(1 - gapcolor, 1 - gapcolor, 1);
-	glColor3d(1, 0, 0);
+	//glColor3d(1, 0, 0);
+	if (p[i][j][k] == 1.5) glColor3d(0.6, 0.2, 0.2);//木板で挟んだところ
+	//if (p[i][j][k] <= 1.0) glColor3d(0, 0, 0);
 	if (i % 2 == 1 && j % 2 == 1) {
 		glPushMatrix();
 		glBegin(GL_QUADS);
@@ -2265,10 +2302,12 @@ void DrawYarnPlain(int i, int j, int k) {
 
 	//糸の描画
 	glColor3d(1 - dyeDraw[i][j][k], 1 - dyeDraw[i][j][k], 1);
+	if (p[i][j][k] == 1.5) glColor3d(0.6, 0.2, 0.2);//木板で挟んだところ
+	//if (p[i][j][k] <= 1.0) glColor3d(0, 0, 0);
 	if (k == 0) {//一層目
 		if ((i % 4 == 0 && j % 4 == 0) || (i % 4 == 2 && j % 4 == 2)) {//横糸，下			
 			glPushMatrix();
-			glColor3d(0, 1, 0);
+			//glColor3d(0, 1, 0);
 			glBegin(GL_QUADS);
 			glVertex2d(weft_coordinate[0][X], weft_coordinate[0][Y]);//左下
 			glVertex2d(weft_coordinate[1][X], weft_coordinate[1][Y]);//右下
@@ -2279,7 +2318,7 @@ void DrawYarnPlain(int i, int j, int k) {
 		}
 		else if ((i % 4 == 0 && j % 4 == 2) || (i % 4 == 2 && j % 4 == 0)) {//縦糸，下
 			glPushMatrix();
-			glColor3d(0, 0, 1);
+			//glColor3d(0, 0, 1);
 			glBegin(GL_QUADS);
 			glVertex2d(warp_coordinate[0][X], warp_coordinate[0][Y]);//左下
 			glVertex2d(warp_coordinate[1][X], warp_coordinate[1][Y]);//右下
@@ -2292,7 +2331,7 @@ void DrawYarnPlain(int i, int j, int k) {
 	else if (k == 1) {//二層目
 		if ((i % 4 == 0 && j % 4 == 0) || (i % 4 == 2 && j % 4 == 2)) {//縦糸，上
 			glPushMatrix();
-			glColor3d(0, 0, 1);
+			//glColor3d(0, 0, 1);
 			glBegin(GL_QUADS);
 			glVertex2d(warp_coordinate[0][X], warp_coordinate[0][Y]);//左下
 			glVertex2d(warp_coordinate[1][X], warp_coordinate[1][Y]);//右下
@@ -2303,7 +2342,7 @@ void DrawYarnPlain(int i, int j, int k) {
 		}
 		else if ((i % 4 == 0 && j % 4 == 2) || (i % 4 == 2 && j % 4 == 0)) {//横糸，上
 			glPushMatrix();
-			glColor3d(0, 1, 0);
+			//glColor3d(0, 1, 0);
 			glBegin(GL_QUADS);
 			glVertex2d(weft_coordinate[0][X], weft_coordinate[0][Y]);//左下
 			glVertex2d(weft_coordinate[1][X], weft_coordinate[1][Y]);//右下
