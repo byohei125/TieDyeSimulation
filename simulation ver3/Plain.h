@@ -17,32 +17,85 @@ using namespace std;
 void PlateBoundaryCal(int i, int j, int k) {
 
 	//着目セルに対して，等圧力のセルを抽出
-	int p_equal_i[9] = {}, p_equal_j[9] = {};
+	int pequal_i[9] = {}, pequal_j[9] = {};
 	int n = 0;
 	for (int l = -1; l <= 1; l++) {
 		for (int m = -1; m <= 1; m++) {
 			if (p[i][j][k] == p[i + l][j + m][k]) {
-				p_equal_i[n] = i + l;
-				p_equal_j[n] = j + m;
+				pequal_i[n] = i + l;
+				pequal_j[n] = j + m;
 				n++;
 			}
 		}
 	}
-	if (n > 0) {
-		double dyesum = 0, csum = 0, watersum = 0;
+	if (n > 0 && c[i][j][k] > 0) {
+		double dc_pequal[9] = {};
+		double D_pequal = 1.0;
 		for (int l = 0; l < n; l++) {
-			dyesum += dye[p_equal_i[l]][p_equal_j[l]][k];
-			csum += c[p_equal_i[l]][p_equal_j[l]][k];
-			watersum += water[p_equal_i[l]][p_equal_j[l]][k];
+			//着目セルと等圧力のセルとの距離の算出
+			double d_pequal = 0;
+			if (i % 2 == 0 && j % 2 == 1) {//横隙間
+				if (i != pequal_i[n] && j != pequal_j[n]) {//斜め方向に等圧力セルがあるとき
+					d_pequal = sqrt((gap[i][j][X] / 2) * (gap[i][j][Y] / 2)) + sqrt((gap[pequal_i[l]][pequal_j[l]][X] / 2) * (gap[pequal_i[l]][pequal_j[l]][Y] / 2));
+				}
+				else if (i != pequal_i[n]) {//横方向
+					d_pequal = (gap[i][j][X] + gap[pequal_i[l]][pequal_j[l]][X]) / 2;
+				}
+				else if (j != pequal_j[n]) {//縦方向
+					d_pequal = (gap[i][j][Y] + yarn[pequal_i[l]][pequal_j[l]][Y]) / 2;
+				}
+			}
+			else if (i % 2 == 1 && j % 2 == 0) {//縦隙間
+				if (i != pequal_i[n] && j != pequal_j[n]) {//斜め方向に等圧力セルがあるとき
+					d_pequal = sqrt((gap[i][j][X] / 2) * (gap[i][j][Y] / 2)) + sqrt((gap[pequal_i[l]][pequal_j[l]][X] / 2) * (gap[pequal_i[l]][pequal_j[l]][Y] / 2));
+				}
+				else if (i != pequal_i[n]) {//横方向
+					d_pequal = (gap[i][j][X] + yarn[pequal_i[l]][pequal_j[l]][X]) / 2;
+				}
+				else if (j != pequal_j[n]) {//縦方向
+					d_pequal = (gap[i][j][Y] + gap[pequal_i[l]][pequal_j[l]][Y]) / 2;
+				}
+			}
+			else if (i % 2 == 1 && j % 2 == 1) {//隙間
+				if (i != pequal_i[n] && j != pequal_j[n]) {//斜め方向に等圧力セルがあるとき
+					d_pequal = sqrt((gap[i][j][X] / 2) * (gap[i][j][Y] / 2)) + sqrt((yarn[pequal_i[l]][pequal_j[l]][X] / 2) * (yarn[pequal_i[l]][pequal_j[l]][Y] / 2));
+				}
+				else if (i != pequal_i[n]) {//横方向
+					d_pequal = (gap[i][j][X] + gap[pequal_i[l]][pequal_j[l]][X]) / 2;
+				}
+				else if (j != pequal_j[n]) {//縦方向
+					d_pequal = (gap[i][j][Y] + gap[pequal_i[l]][pequal_j[l]][Y]) / 2;
+				}
+			}
+			else {//糸
+				//糸から染み出すか？
+				break;
+			}
+
+			dc_pequal[n] = dt *  D_pequal * ((c[i][j][k] - c[pequal_i[l]][pequal_j[l]][k]) / (pow(d_pequal, 2)));
+			if (dc_pequal[n] > 0) {
+				c[pequal_i[l]][pequal_j[l]][k] += dc_pequal[n];
+				dye[pequal_i[l]][pequal_j[l]][k] = (c[pequal_i[l]][pequal_j[l]][k] / (1 - c[pequal_i[l]][pequal_j[l]][k])) * water[pequal_i[l]][pequal_j[l]][k];
+				c[i][j][k] -= dc_pequal[n];
+				dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
+			}
+
+			//染色終了条件
+			double dThreshold = pow(10, -2);//pow(10, -4) * 3.5
+			if (dc_pequal[n] > dThreshold) d_pequalCount[i][j][k]++;
 		}
-		dyesum /= n;
-		csum /= n;
-		watersum /= n;
+		/*double dyesum = 0, csum = 0, watersum = 0;
 		for (int l = 0; l < n; l++) {
-			dye[p_equal_i[l]][p_equal_j[l]][k] = dyesum;
-			c[p_equal_i[l]][p_equal_j[l]][k] = csum;
-			water[p_equal_i[l]][p_equal_j[l]][k] = watersum;
+			dyesum += dye[pequal_i[l]][pequal_j[l]][k];
+			csum += c[pequal_i[l]][pequal_j[l]][k];
+			watersum += water[pequal_i[l]][pequal_j[l]][k];
 		}
+		dyesum /= n; csum /= n; watersum /= n;
+		for (int l = 0; l < n; l++) {
+			dye[pequal_i[l]][pequal_j[l]][k] = dyesum;
+			c[pequal_i[l]][pequal_j[l]][k] = csum;
+			water[pequal_i[l]][pequal_j[l]][k] = watersum;
+		}*/
 	}
 
 }
@@ -72,6 +125,50 @@ void PlainCal(int i, int j, int k) {
 	//y(j)方向の毛細管作用による浸透距離
 	ry = (gap[i][j][X] <= gap[i][j][Z]) ? (gap[i][j][X] / 2) : (gap[i][j][Z] / 2);
 	hy = sqrt(((ry * 0.001) * SurfaceTension * cos(ContactAngle) * dt) / (2 * Viscosity)) * 1000;
+
+
+	/////////////////////////////////////////////板のある方向の探索////////////////////////////////////////////
+	int Ncount = 0, Scount = 0, Wcount = 0, Ecount = 0;
+	while (p[i][j + Ncount][k] < 1.5) {
+		Ncount++;
+		if (j + Ncount > 2 * Nx + 1) break;
+	}
+	while (p[i][j - Scount][k] < 1.5) {
+		Scount++;
+		if (j - Scount < 0) break;
+	}
+	while (p[i - Wcount][j][k] < 1.5) {
+		Wcount++;
+		if (i - Wcount < 0) break;
+	}
+	while (p[i + Ecount][j][k] < 1.5) {
+		Ecount++;
+		if (i + Ecount > 2 * Ny + 1) break;
+	}
+	if (Ncount < Scount) {
+		DyN *= 5.0;
+		DgN *= 5.0;
+		DyS *= 0.1;
+		DgS *= 0.1;
+	}
+	else {
+		DyN *= 0.1;
+		DgN *= 0.1;
+		DyS *= 5.0;
+		DgS *= 5.0;
+	}
+	if (Wcount < Ecount) {
+		DyW *= 5.0;
+		DgW *= 5.0;
+		DyE *= 0.1;
+		DgE *= 0.1;
+	}
+	else {
+		DyW *= 0.1;
+		DgW *= 0.1;
+		DyE *= 5.0;
+		DgE *= 5.0;
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////横方向の糸間の隙間：i = 偶数，j = 奇数//////////////////////////////////////////////////
@@ -2249,7 +2346,7 @@ void DrawGapPlain(int i, int j, int k) {
 	gapcolor = (dyeDraw[i + 1][j + 1][k] + dyeDraw[i - 1][j - 1][k] + dyeDraw[i + 1][j - 1][k] + dyeDraw[i - 1][j + 1][k]) / 4;
 	glColor3d(1 - gapcolor, 1 - gapcolor, 1);
 	//glColor3d(1, 0, 0);
-	if (p[i][j][k] == 1.5) glColor3d(0.6, 0.2, 0.2);//木板で挟んだところ
+	if (p[i][j][k] == 1.5) glColor3d(0.2, 0.0, 0.0);//木板で挟んだところ
 	//if (p[i][j][k] <= 1.0) glColor3d(0, 0, 0);
 	if (i % 2 == 1 && j % 2 == 1) {
 		glPushMatrix();
@@ -2302,7 +2399,7 @@ void DrawYarnPlain(int i, int j, int k) {
 
 	//糸の描画
 	glColor3d(1 - dyeDraw[i][j][k], 1 - dyeDraw[i][j][k], 1);
-	if (p[i][j][k] == 1.5) glColor3d(0.6, 0.2, 0.2);//木板で挟んだところ
+	if (p[i][j][k] == 1.5) glColor3d(0.2, 0.0, 0.0);//木板で挟んだところ
 	//if (p[i][j][k] <= 1.0) glColor3d(0, 0, 0);
 	if (k == 0) {//一層目
 		if ((i % 4 == 0 && j % 4 == 0) || (i % 4 == 2 && j % 4 == 2)) {//横糸，下			

@@ -122,8 +122,10 @@ const int Z = 2;
 int WetDryFlag[NN + 2][NN + 2][2][5];//値が0のとき乾燥・1のとき湿潤，0:着目セルの右のセル，1:左，2:上，3:下，4:他の層(隙間において)
 int dTerminator = 0;//染色終了条件(拡散計算)
 int bcTerminator = 0;//染色終了条件(Burasの式と毛細管作用)
+int d_pequalTerminator = 0;//染色終了条件(等圧セル間における拡散計算)
 int dCount[NN + 2][NN + 2][2];//拡散計算が起きているか確認用
 int bcCount[NN + 2][NN + 2][2];//Burasの式と毛細管作用の計算が起きているか確認用
+int d_pequalCount[NN + 2][NN + 2][2];//等圧セル間における拡散計算が起きているか確認用
 int wet_or_dry;//初期状態において布は湿潤か乾燥か(0：乾燥，1：湿潤)
 
 

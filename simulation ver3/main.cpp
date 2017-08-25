@@ -8,6 +8,7 @@
 #include <GL/glut.h>
 #include <conio.h>
 #include <algorithm>
+#include <chrono>
 
 #include "Difinition.h"
 #include "Bitmap.h"
@@ -17,6 +18,7 @@
 #include "Pressure.h"
 
 using namespace std;
+
 
 //---------------------------------------------------------------------------------------------------
 //　　clear
@@ -217,16 +219,16 @@ void Dye(void) {
 	}
 	//板で斜めに防染した位置よりも右上に円状に滴下
 	double A;
-	rA = 5;
+	rA = 20;
 	for (int i = Ny; i <= 2 * Ny + 1; i++) {
 		for (int j = Nx; j <= 2 * Nx + 1; j++) {
 			for (int k = 0; k <= 1; k++) {
 				A = (i - 0.6 * 2 * Ny) * (i - 0.6 * 2 * Ny) + (j - 0.6 * 2 * Nx) * (j - 0.6 * 2 * Nx);
 				if (A <= rA * rA) {
-					dye[i][j][k] += 0.1;
-					water[i][j][k] += 0.1;
+					dye[i][j][k] += 30;
+					water[i][j][k] += 30;
 					c[i][j][k] = dye[i][j][k] / (water[i][j][k] + dye[i][j][k]);
-					cout << "(" << i << ", " << j << ")\t";
+					//cout << "(" << i << ", " << j << ")\t";
 				}
 			}
 		}
@@ -394,6 +396,7 @@ void Yuragi(void) {
 //　　Desc : ウィンドウ1への描画
 //---------------------------------------------------------------------------------------------------
 void Display1(void) {
+	auto startTime = std::chrono::system_clock::now();
 
 	//画面クリア
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -405,6 +408,7 @@ void Display1(void) {
 	for (t = 1; t <= loop_times; t++) {
 		dTerminator = 0;
 		bcTerminator = 0;
+		d_pequalTerminator = 0;
 
 		//着目セルの近傍のセルの状態(湿潤 or 乾燥)を確認
 		for (int i = 1; i <= 2 * Ny + 1; i++) {
@@ -419,6 +423,7 @@ void Display1(void) {
 					else if (k == 1 && water[i][j][k - 1] >= capacity[i][j] * 1.0) WetDryFlag[i][j][k][4] = 1;*/
 					dCount[i][j][k] = 0;
 					bcCount[i][j][k] = 0;
+					d_pequalCount[i][j][k] = 0;
 				}
 			}
 		}
@@ -464,14 +469,20 @@ void Display1(void) {
 				for (int k = 0; k <= 1; k++) {
 					if (dCount[i][j][k] != 0) dTerminator++;//すべてのセルで拡散計算されなければdTerminator = 0
 					if (bcCount[i][j][k] != 0) bcTerminator++;//すべてのセルでBurasの式・毛細管作用の計算がされなければbcTerminator = 0
+					if (d_pequalCount[i][j][k] != 0) d_pequalTerminator++;
 					/*if (isnan(c[i][j][k]) == 1) cout << "t = " << t << ", c[" << i << "][" << j << "][" << k << "] = " << c[i][j][k] << endl;
 					if (isnan(water[i][j][k]) == 1) cout << "t = " << t << ", water[" << i << "][" << j << "][" << k << "] = " << water[i][j][k] << endl;
 					if (isnan(dye[i][j][k]) == 1) cout << "t = " << t << ", dye[" << i << "][" << j << "][" << k << "] = " << dye[i][j][k] << endl;*/
 				}
 			}
 		}
-		if (t % 100 == 0) cout << "dTerminator = " << dTerminator << ", bcTerminator = " << bcTerminator << " (t = " << t << ")" << endl;
-		if (dTerminator == 0 && bcTerminator == 0) {
+		if (t % 100 == 0) {
+			auto endTime = std::chrono::system_clock::now();
+			auto timeSpan = endTime - startTime;
+			cout << "t = " << t << " (" << chrono::duration_cast<chrono::milliseconds>(timeSpan).count() << "[ms])" << 
+				endl << "　dTerminator = " << dTerminator << ", bcTerminator = " << bcTerminator << ", d_pequalTerminator = " << d_pequalTerminator << endl;
+		}
+		if (dTerminator == 0 && bcTerminator == 0 && d_pequalTerminator == 0) {
 			cout << "t = " << t << endl;
 			break;
 		}
@@ -487,19 +498,9 @@ void Display1(void) {
 			}
 			//tキーが押下されたときに途中結果画像出力
 			if (buf == 't') {
-				for (int i = 1; i <= 2 * Ny + 1; i++) {
-					for (int j = 1; j <= 2 * Nx + 1; j++) {
-						for (int k = 0; k <= 1; k++) {
-							dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-							if (i % 2 == 0 && j % 2 == 0) {
-								dyemax = (dye[i][j][k] >= dyemax) ? dye[i][j][k] : dyemax;
-							}
-						}
-					}
-				}
-				dyemax = 0.0016875;
+				//dyemax = 0.0016875;
 				//dyemax = yarnx * yarny * (yarnx + yarny) / 2;
-				cout << "dyemax = " << dyemax << endl;
+				dyemax = gapx * yarny * (yarnx + yarny) / 2;
 				for (int i = 1; i <= 2 * Ny + 1; i++) {
 					for (int j = 1; j <= 2 * Nx + 1; j++) {
 						for (int k = 0; k <= 1; k++) {
@@ -521,7 +522,10 @@ void Display1(void) {
 						}
 					}
 				}
-				WriteBitmap("Simulation output(途中).bmp", width, height);
+				WriteBitmap("Simulation output(途中経過).bmp", width, height);
+				auto endTime = std::chrono::system_clock::now();
+				auto timeSpan = endTime - startTime;
+				cout << "途中経過: t = " << t << " (" << chrono::duration_cast<chrono::milliseconds>(timeSpan).count() << "[ms])" << endl;
 			}
 		}
 
@@ -540,9 +544,9 @@ void Display1(void) {
 			}
 		}
 	}*/
-	dyemax = 0.0016875;
+	//dyemax = 0.0016875;
 	//dyemax = yarnx * yarny * (yarnx + yarny) / 2;
-	cout << "dyemax = " << dyemax;
+	dyemax = gapx * yarny * (yarnx + yarny) / 2;
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
 			for (int k = 0; k <= 1; k++) {
@@ -574,6 +578,10 @@ void Display1(void) {
 	cout << "保存...COMPLETE" << endl;
 
 	glFlush();
+
+	auto endTime = std::chrono::system_clock::now();
+	auto timeSpan = endTime - startTime;
+	cout << "処理時間:" << chrono::duration_cast<chrono::milliseconds>(timeSpan).count() << "[ms]" << endl;
 
 }
 
@@ -623,7 +631,7 @@ void Initialize(void) {
 //　　Desc : メインエントリーポイント
 //----------------------------------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
-
+	
 	int WinID[2];
 
 	Parameter();//入力パラメータ
@@ -639,7 +647,7 @@ int main(int argc, char *argv[]) {
 	cout << "布内の糸の本数：" << endl << "　縦糸 Ny = " << Ny << "　(セル数 2Ny+1 = " << 2 * Ny + 1 << ")"
 		<< endl << "　横糸 Nx = " << Nx << "　(セル数 2Nx+1 = " << 2 * Nx + 1 << ")" << endl;
 	cout << "セルの標準体積：" << endl << "　糸：" << yarnx * yarny * (yarnx + yarny) / 2 << endl;
-	cout << "　隙間：" << gapx * yarny * (yarnx + yarny) / 2 << endl;
+	cout << "　隙間(縦横)：" << gapx * yarny * (yarnx + yarny) / 2 << endl;
 	cout << "布の許容量(体積，ゆらぎなし)：" << ((yarny + gapy) * Nx) * ((yarnx + gapx) * Ny) * (yarnx + yarny) << endl;
 	/*cout << endl << "YARNx = " << YARNx << ", YARNy = " << YARNy << ", GAPx = " << GAPx << ", GAPy = " << GAPy << endl;*/
 	cout << "width = " << width << ", height = " << height << endl;
