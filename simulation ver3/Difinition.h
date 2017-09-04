@@ -1,5 +1,7 @@
 #pragma once
 #define NN 1000//布の一辺の長さ（糸+隙間）の最大値，2*Nxや2*Nyより大きくなくてはならない
+#define P_AT 1.0//標準大気圧
+#define P_MAX 1.5//圧迫時の最大圧力
 int Nx, Ny;//布内の横糸の本数，縦糸の本数
 
 
@@ -119,10 +121,10 @@ int loop_times = 0;
 const int X = 0;
 const int Y = 1;
 const int Z = 2;
-int WetDryFlag[NN + 2][NN + 2][2][5];//値が0のとき乾燥・1のとき湿潤，0:着目セルの右のセル，1:左，2:上，3:下，4:他の層(隙間において)
+int AdjacentCellStatus[NN + 2][NN + 2][2][5];//0：乾燥，1：湿潤，2：圧迫，三つ目の引数は0:着目セルの右のセル，1:左，2:上，3:下，4:他の層(隙間において)
 int dTerminator = 0;//染色終了条件(拡散計算)
 int bcTerminator = 0;//染色終了条件(Burasの式と毛細管作用)
-int d_pequalTerminator = 0;//染色終了条件(等圧セル間における拡散計算)
+int d_pequalTerminator = 1;//染色終了条件(等圧セル間における拡散計算)
 int dCount[NN + 2][NN + 2][2];//拡散計算が起きているか確認用
 int bcCount[NN + 2][NN + 2][2];//Burasの式と毛細管作用の計算が起きているか確認用
 int d_pequalCount[NN + 2][NN + 2][2];//等圧セル間における拡散計算が起きているか確認用

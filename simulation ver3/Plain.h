@@ -17,7 +17,8 @@ using namespace std;
 void PlateBoundaryCal(int i, int j, int k) {
 
 	//íÖñ⁄ÉZÉãÇ…ëŒÇµÇƒÅCìôà≥óÕÇÃÉZÉãÇíäèo
-	int pequal_i[9] = {}, pequal_j[9] = {};
+	const int nn = 9;
+	int pequal_i[nn] = {}, pequal_j[nn] = {};
 	int n = 0;
 	for (int l = -1; l <= 1; l++) {
 		for (int m = -1; m <= 1; m++) {
@@ -29,31 +30,20 @@ void PlateBoundaryCal(int i, int j, int k) {
 		}
 	}
 	if (n > 0 && c[i][j][k] > 0) {
-		double dc_pequal[9] = {};
-		double D_pequal = 1.0;
+		double dc_pequal[nn] = {};
+		double D_pequal = 0.5;
 		for (int l = 0; l < n; l++) {
 			//íÖñ⁄ÉZÉãÇ∆ìôà≥óÕÇÃÉZÉãÇ∆ÇÃãóó£ÇÃéZèo
 			double d_pequal = 0;
-			if (i % 2 == 0 && j % 2 == 1) {//â°åÑä‘
+			if ((i % 2 == 0 && j % 2 == 1) || (i % 2 == 1 && j % 2 == 0)) {//ècâ°åÑä‘
 				if (i != pequal_i[n] && j != pequal_j[n]) {//éŒÇﬂï˚å¸Ç…ìôà≥óÕÉZÉãÇ™Ç†ÇÈÇ∆Ç´
-					d_pequal = sqrt((gap[i][j][X] / 2) * (gap[i][j][Y] / 2)) + sqrt((gap[pequal_i[l]][pequal_j[l]][X] / 2) * (gap[pequal_i[l]][pequal_j[l]][Y] / 2));
+					d_pequal = sqrt(pow((gap[i][j][X] / 2), 2)  + pow((gap[i][j][Y] / 2), 2)) + sqrt(pow((gap[pequal_i[l]][pequal_j[l]][X] / 2), 2) * pow((gap[pequal_i[l]][pequal_j[l]][Y] / 2), 2));
 				}
 				else if (i != pequal_i[n]) {//â°ï˚å¸
 					d_pequal = (gap[i][j][X] + gap[pequal_i[l]][pequal_j[l]][X]) / 2;
 				}
 				else if (j != pequal_j[n]) {//ècï˚å¸
 					d_pequal = (gap[i][j][Y] + yarn[pequal_i[l]][pequal_j[l]][Y]) / 2;
-				}
-			}
-			else if (i % 2 == 1 && j % 2 == 0) {//ècåÑä‘
-				if (i != pequal_i[n] && j != pequal_j[n]) {//éŒÇﬂï˚å¸Ç…ìôà≥óÕÉZÉãÇ™Ç†ÇÈÇ∆Ç´
-					d_pequal = sqrt((gap[i][j][X] / 2) * (gap[i][j][Y] / 2)) + sqrt((gap[pequal_i[l]][pequal_j[l]][X] / 2) * (gap[pequal_i[l]][pequal_j[l]][Y] / 2));
-				}
-				else if (i != pequal_i[n]) {//â°ï˚å¸
-					d_pequal = (gap[i][j][X] + yarn[pequal_i[l]][pequal_j[l]][X]) / 2;
-				}
-				else if (j != pequal_j[n]) {//ècï˚å¸
-					d_pequal = (gap[i][j][Y] + gap[pequal_i[l]][pequal_j[l]][Y]) / 2;
 				}
 			}
 			else if (i % 2 == 1 && j % 2 == 1) {//åÑä‘
@@ -67,35 +57,38 @@ void PlateBoundaryCal(int i, int j, int k) {
 					d_pequal = (gap[i][j][Y] + gap[pequal_i[l]][pequal_j[l]][Y]) / 2;
 				}
 			}
-			else {//éÖ
-				//éÖÇ©ÇÁêıÇ›èoÇ∑Ç©ÅH
+			else {//éÖÅCéÖÇ©ÇÁêıÇ›èoÇ∑Ç©ÅH
 				break;
 			}
 
-			dc_pequal[n] = dt *  D_pequal * ((c[i][j][k] - c[pequal_i[l]][pequal_j[l]][k]) / (pow(d_pequal, 2)));
-			if (dc_pequal[n] > 0) {
-				c[pequal_i[l]][pequal_j[l]][k] += dc_pequal[n];
+			//double dX1, dY1, dX2, dY2;
+			//if (i % 2 == 0 && j % 2 == 0) {//éÖ
+			//	dX1 = (weft[i][j][X] + warp[i][j][X]) / 2; dY1 = (weft[i][j][Y] + warp[i][j][Y]) / 2;				
+			//}
+			//else {//åÑä‘
+			//	dX1 = Gap[i][j][X]; dY1 = Gap[i][j][Y];
+			//}
+			//if (pequal_i[l] % 2 == 0 && pequal_j[l] % 2 == 0) {//éÖ
+			//	dX2 = (weft[pequal_i[l]][pequal_j[l]][X] + warp[pequal_i[l]][pequal_j[l]][X]) / 2; dY2 = (weft[pequal_i[l]][pequal_j[l]][Y] + warp[pequal_i[l]][pequal_j[l]][Y]) / 2;
+			//}
+			//else {//åÑä‘
+			//	dX2 = Gap[pequal_i[l]][pequal_j[l]][X]; dY2 = Gap[pequal_i[l]][pequal_j[l]][Y];
+			//}
+			//d_pequal = sqrt(pow((dX2 - dX1), 2) + pow((dY2 - dY1), 2));
+
+			dc_pequal[l] = dt *  D_pequal * ((c[i][j][k] - c[pequal_i[l]][pequal_j[l]][k]) / (pow(d_pequal, 2)));
+			//cout << "dc_pequal[l] = " << dc_pequal[l] << endl;
+			if (dc_pequal[l] > 0) {
+				c[pequal_i[l]][pequal_j[l]][k] += dc_pequal[l];
 				dye[pequal_i[l]][pequal_j[l]][k] = (c[pequal_i[l]][pequal_j[l]][k] / (1 - c[pequal_i[l]][pequal_j[l]][k])) * water[pequal_i[l]][pequal_j[l]][k];
-				c[i][j][k] -= dc_pequal[n];
+				c[i][j][k] -= dc_pequal[l];
 				dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
 			}
 
 			//êıêFèIóπèåè
-			double dThreshold = pow(10, -2);//pow(10, -4) * 3.5
-			if (dc_pequal[n] > dThreshold) d_pequalCount[i][j][k]++;
+			double dThreshold = pow(10, -3) * 3.5;//pow(10, -4) * 3.5
+			if (dc_pequal[l] > dThreshold) d_pequalCount[i][j][k]++;
 		}
-		/*double dyesum = 0, csum = 0, watersum = 0;
-		for (int l = 0; l < n; l++) {
-			dyesum += dye[pequal_i[l]][pequal_j[l]][k];
-			csum += c[pequal_i[l]][pequal_j[l]][k];
-			watersum += water[pequal_i[l]][pequal_j[l]][k];
-		}
-		dyesum /= n; csum /= n; watersum /= n;
-		for (int l = 0; l < n; l++) {
-			dye[pequal_i[l]][pequal_j[l]][k] = dyesum;
-			c[pequal_i[l]][pequal_j[l]][k] = csum;
-			water[pequal_i[l]][pequal_j[l]][k] = watersum;
-		}*/
 	}
 
 }
@@ -127,7 +120,7 @@ void PlainCal(int i, int j, int k) {
 	hy = sqrt(((ry * 0.001) * SurfaceTension * cos(ContactAngle) * dt) / (2 * Viscosity)) * 1000;
 
 
-	/////////////////////////////////////////////î¬ÇÃÇ†ÇÈï˚å¸ÇÃíTçı////////////////////////////////////////////
+	/////////////////////////////////////////ñhêıïîï™(î¬Ç»Ç«)ÇÃÇ†ÇÈï˚å¸ÇÃíTçı////////////////////////////////////////////
 	int Ncount = 0, Scount = 0, Wcount = 0, Ecount = 0;
 	while (p[i][j + Ncount][k] < 1.5) {
 		Ncount++;
@@ -145,29 +138,30 @@ void PlainCal(int i, int j, int k) {
 		Ecount++;
 		if (i + Ecount > 2 * Ny + 1) break;
 	}
+	double S = 1.5;
 	if (Ncount < Scount) {
-		DyN *= 5.0;
-		DgN *= 5.0;
-		DyS *= 0.1;
-		DgS *= 0.1;
+		DyN *= S;
+		DgN *= S;
+		DyS /= S;
+		DgS /= S;
 	}
 	else {
-		DyN *= 0.1;
-		DgN *= 0.1;
-		DyS *= 5.0;
-		DgS *= 5.0;
+		DyN /= S;
+		DgN /= S;
+		DyS *= S;
+		DgS *= S;
 	}
 	if (Wcount < Ecount) {
-		DyW *= 5.0;
-		DgW *= 5.0;
-		DyE *= 0.1;
-		DgE *= 0.1;
+		DyW *= S;
+		DgW *= S;
+		DyE /= S;
+		DgE /= S;
 	}
 	else {
-		DyW *= 0.1;
-		DgW *= 0.1;
-		DyE *= 5.0;
-		DgE *= 5.0;
+		DyW /= S;
+		DgW /= S;
+		DyE *= S;
+		DgE *= S;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +169,7 @@ void PlainCal(int i, int j, int k) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	if (i % 2 == 0 && j % 2 == 1) {
 		///////////////////////éÖÇ÷ÇÃêZìßÇÃåvéZ//////////////////////////////
-		if (WetDryFlag[i][j][k][2] == 1 && WetDryFlag[i][j][k][3] == 1) {
+		if (AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 1) {
 			if (c[i][j][k] > 0) {
 				dcN_yarn = dt *  DyN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((yarn[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
 				dcS_yarn = dt *  DyS * ((c[i][j][k] - c[i][j - 1][k]) / (pow((yarn[i][j - 1][Y] + gap[i][j][Y]) / 2, 2)));//Å´
@@ -193,7 +187,7 @@ void PlainCal(int i, int j, int k) {
 				}
 			}
 		}
-		else if (WetDryFlag[i][j][k][2] == 1) {
+		else if (AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 0) {
 			//(j + 1)ÅFägéU
 			if (c[i][j][k] > 0) {
 				dcN_yarn = dt *  DyN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((yarn[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
@@ -226,7 +220,7 @@ void PlainCal(int i, int j, int k) {
 				c[i][j - 1][k] = dye[i][j - 1][k] / (dye[i][j - 1][k] + water[i][j - 1][k]);
 			}
 		}
-		else if (WetDryFlag[i][j][k][3] == 1) {
+		else if (AdjacentCellStatus[i][j][k][3] == 1 && AdjacentCellStatus[i][j][k][2] == 0) {
 			//(j - 1)ÅFägéU
 			if (c[i][j][k] > 0) {
 				dcS_yarn = dt *  DyS * ((c[i][j][k] - c[i][j - 1][k]) / (pow((yarn[i][j - 1][Y] + gap[i][j][Y]) / 2, 2)));//Å´
@@ -259,7 +253,7 @@ void PlainCal(int i, int j, int k) {
 				c[i][j + 1][k] = dye[i][j + 1][k] / (dye[i][j + 1][k] + water[i][j + 1][k]);
 			}
 		}
-		else {
+		else if (AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 0) {
 			//êZìßåvéZÅFBurasÇÃéÆ dq = Q * (1 - exp(-(I / Q) * dt));
 			if ((dye[i][j][k] + water[i][j][k]) > 0) {
 				elapsedTime = (water[i][j + 1][k] > 0) ? (-(capacity[i][j + 1] / initialVelocity) * log(1 - ((water[i][j + 1][k] + dye[i][j + 1][k]) / capacity[i][j + 1]))) : 0;
@@ -296,7 +290,7 @@ void PlainCal(int i, int j, int k) {
 		///////////////////////åÑä‘Ç÷ÇÃêZìßÇÃåvéZ////////////////////////////
 		//íÖñ⁄ÉZÉãÇÃêÖï™ó Ç™í¥âﬂÇµÇƒÇ¢ÇÈÇ©ÅCêÖï™ÇÕÇ†ÇÈÇ©ÅCëSÇ≠Ç»Ç¢Ç©Ç≈ï™óﬁ
 		if (water[i][j][k] > capacity[i][j]) {
-			if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][1] == 1) {
+			if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 1) {
 				//2Ç¬ÇÃåÑä‘ÉZÉãÇÕéºèÅ Å® ägéUåvéZ
 				if (c[i][j][k] > 0) {
 					dcW_gap = dt *  DgW * ((c[i][j][k] - c[i - 1][j][k]) / (pow((gap[i - 1][j][X] + gap[i][j][X]) / 2, 2)));//Å©
@@ -315,7 +309,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][0] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 0) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(i - 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hx > 0) {
 					hnegativex++;
@@ -351,7 +345,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][1] == 1) {
+			else if (AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][0] == 0) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(i + 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hx > 0) {
 					hpositivex++;
@@ -388,7 +382,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 0){
 				//2Ç¬ÇÃåÑä‘ÉZÉãÇÕä£ëá Å® ñ—ç◊ä«çÏóp
 				hx1 = hx;
 				while (hx1 > 0) {
@@ -437,7 +431,7 @@ void PlainCal(int i, int j, int k) {
 			}
 		}
 		else if (water[i][j][k] > 0) {
-			if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][1] == 1) {
+			if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 1) {
 				if (c[i][j][k] > 0) {
 					dcW_gap = dt *  DgW * ((c[i][j][k] - c[i - 1][j][k]) / (pow((gap[i - 1][j][X] + gap[i][j][X]) / 2, 2)));//Å©
 					dcE_gap = dt *  DgE * ((c[i][j][k] - c[i + 1][j][k]) / (pow((gap[i + 1][j][X] + gap[i][j][X]) / 2, 2)));//Å®
@@ -457,7 +451,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][0] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 0) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(i + 1)Ç÷ägéUåvéZÅCä£ëáÇµÇƒÇ¢ÇÈï˚(i - 1)Ç÷ÇÕâΩÇ‡ÇµÇ»Ç¢
 				if (c[i][j][k] > 0) {
 					dcE_gap = dt *  DgE * ((c[i][j][k] - c[i + 1][j][k]) / (pow((gap[i + 1][j][X] + gap[i][j][X]) / 2, 2)));//Å®
@@ -469,7 +463,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][1] == 1) {
+			else if (AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][0] == 0) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(i - 1)Ç÷ägéUåvéZÅCä£ëáÇµÇƒÇ¢ÇÈï˚(i + 1)Ç÷ÇÕâΩÇ‡ÇµÇ»Ç¢
 				if (c[i][j][k] > 0) {
 					dcW_gap = dt *  DgW * ((c[i][j][k] - c[i - 1][j][k]) / (pow((gap[i - 1][j][X] + gap[i][j][X]) / 2, 2)));//Å©
@@ -488,7 +482,7 @@ void PlainCal(int i, int j, int k) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	else if (i % 2 == 1 && j % 2 == 0) {
 		///////////////////////éÖÇ÷ÇÃêZìßÇÃåvéZ//////////////////////////////
-		if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][1] == 1) {
+		if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 1) {
 			if (c[i][j][k] > 0) {
 				dcW_yarn = dt *  DyW * ((c[i][j][k] - c[i - 1][j][k]) / (pow((yarn[i - 1][j][X] + gap[i][j][X]) / 2, 2)));//Å©
 				dcE_yarn = dt *  DyE * ((c[i][j][k] - c[i + 1][j][k]) / (pow((yarn[i + 1][j][X] + gap[i][j][X]) / 2, 2)));//Å®
@@ -508,7 +502,7 @@ void PlainCal(int i, int j, int k) {
 				}
 			}
 		}
-		else if (WetDryFlag[i][j][k][0] == 1) {
+		else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 0) {
 			//(i + 1)ÅFägéU
 			if (c[i][j][k] > 0) {
 				dcE_yarn = dt *  DyE * ((c[i][j][k] - c[i + 1][j][k]) / (pow((yarn[i + 1][j][X] + gap[i][j][X]) / 2, 2)));//Å®
@@ -542,7 +536,7 @@ void PlainCal(int i, int j, int k) {
 				c[i - 1][j][k] = dye[i - 1][j][k] / (dye[i - 1][j][k] + water[i - 1][j][k]);
 			}
 		}
-		else if (WetDryFlag[i][j][k][1] == 1) {
+		else if (AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][0] == 0) {
 			//(i - 1)ÅFägéU
 			if (c[i][j][k] > 0) {
 				dcW_gap = dt *  DgW * ((c[i][j][k] - c[i - 1][j][k]) / (pow((gap[i - 1][j][X] + gap[i][j][X]) / 2, 2)));//Å©
@@ -576,7 +570,7 @@ void PlainCal(int i, int j, int k) {
 				c[i + 1][j][k] = dye[i + 1][j][k] / (dye[i + 1][j][k] + water[i + 1][j][k]);
 			}
 		}
-		else {
+		else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 0) {
 			if ((dye[i][j][k] + water[i][j][k]) > 0) {
 				elapsedTime = (water[i + 1][j][k] > 0) ? (-(capacity[i + 1][j] / initialVelocity) * log(1 - ((water[i + 1][j][k] + dye[i + 1][j][k]) / capacity[i + 1][j]))) : 0;
 				dq = capacity[i + 1][j] * (1 - exp(-(initialVelocity / capacity[i + 1][j]) * dt)) * exp(-(initialVelocity / capacity[i + 1][j]) * elapsedTime);
@@ -612,7 +606,7 @@ void PlainCal(int i, int j, int k) {
 		///////////////////////åÑä‘Ç÷ÇÃêZìßÇÃåvéZ////////////////////////////
 		//íÖñ⁄ÉZÉãÇÃêÖï™ó Ç™í¥âﬂÇµÇƒÇ¢ÇÈÇ©ÅCêÖï™ÇÕÇ†ÇÈÇ©ÅCëSÇ≠Ç»Ç¢Ç©Ç≈ï™óﬁ
 		if (water[i][j][k] > capacity[i][j]) {
-			if (WetDryFlag[i][j][k][2] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			if (AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//2Ç¬ÇÃåÑä‘ÉZÉãÇÕéºèÅ Å® ägéUåvéZ
 				if (c[i][j][k] > 0) {
 					dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
@@ -633,7 +627,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][2] == 1) {
+			else if (AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(j - 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hy > 0) {
 					hnegativey++;
@@ -669,7 +663,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][3] == 1 && AdjacentCellStatus[i][j][k][2] == 0) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(j + 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hy > 0) {
 					hpositivey++;
@@ -705,7 +699,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else {
+			else if (AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//2Ç¬ÇÃåÑä‘ÉZÉãÇÕä£ëá Å® ñ—ç◊ä«çÏóp
 				hy1 = hy;
 				while (hy1 > 0) {
@@ -754,7 +748,7 @@ void PlainCal(int i, int j, int k) {
 			}
 		}
 		else if (water[i][j][k] > 0) {
-			if (WetDryFlag[i][j][k][2] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			if (AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 1) {
 				if (c[i][j][k] > 0) {
 					dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
 					dcS_gap = dt *  DgS * ((c[i][j][k] - c[i][j - 1][k]) / (pow((gap[i][j - 1][Y] + gap[i][j][Y]) / 2, 2)));//Å´
@@ -774,7 +768,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][2] == 1) {
+			else if (AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(j + 1)Ç÷ägéUåvéZÅCä£ëáÇµÇƒÇ¢ÇÈï˚(j - 1)Ç÷ÇÕâΩÇ‡ÇµÇ»Ç¢
 				if (c[i][j][k] > 0) {
 					dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
@@ -787,7 +781,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][3] == 1 && AdjacentCellStatus[i][j][k][2] == 0) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(j - 1)Ç÷ägéUåvéZÅCä£ëáÇµÇƒÇ¢ÇÈï˚(j + 1)Ç÷ÇÕâΩÇ‡ÇµÇ»Ç¢
 				if (c[i][j][k] > 0) {
 					dcS_gap = dt *  DgS * ((c[i][j][k] - c[i][j - 1][k]) / (pow((gap[i][j - 1][Y] + gap[i][j][Y]) / 2, 2)));//Å´
@@ -808,7 +802,7 @@ void PlainCal(int i, int j, int k) {
 	else if (i % 2 == 1 && j % 2 == 1) {
 		if (water[i][j][k] > capacity[i][j]) {
 			//ãﬂñTÇÃåÑä‘ÉZÉãÇ™ëSÇƒéºèÅÇÃÇ∆Ç´
-			if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][1] == 1 && WetDryFlag[i][j][k][2] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//ägéUåvéZ
 				if (c[i][j][k] > 0) {
 					dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
@@ -849,7 +843,7 @@ void PlainCal(int i, int j, int k) {
 			}
 
 			//ãﬂñTÇÃåÑä‘ÉZÉãÇÃÇ§ÇøÅC3Ç¬Ç™éºèÅÇÃÇ∆Ç´ÅCéºèÅÉZÉãÇ÷ÇÃêÖï™à⁄ìÆÇÕÇ»Çµ
-			else if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][1] == 1 && WetDryFlag[i][j][k][2] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//ä£ëá(j - 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hy > 0) {
 					hnegativey++;
@@ -901,7 +895,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][1] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//ä£ëá(j + 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hy > 0) {
 					hpositivey++;
@@ -953,7 +947,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][2] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//ä£ëá(i - 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hx > 0) {
 					hnegativex++;
@@ -1005,7 +999,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][1] == 1 && WetDryFlag[i][j][k][2] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//ä£ëá(i + 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hx > 0) {
 					hpositivex++;
@@ -1060,7 +1054,7 @@ void PlainCal(int i, int j, int k) {
 			}
 
 			//ãﬂñTÇÃåÑä‘ÉZÉãÇÃÇ§ÇøÅC2Ç¬Ç™éºèÅÇÃÇ∆Ç´ÅCéºèÅÉZÉãÇ÷ÇÃêÖï™à⁄ìÆÇÕÇ»Çµ
-			else if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][1] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(j + 1, j - 1)Ç÷ñ—ç◊ä«çÏóp
 				hy1 = hy;
 				while (hy1 > 0) {
@@ -1126,7 +1120,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][2] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(i - 1, j - 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hx > 0) {
 					hnegativex++;
@@ -1191,7 +1185,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(i - 1, j + 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hx > 0) {
 					hnegativex++;
@@ -1256,7 +1250,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][1] == 1 && WetDryFlag[i][j][k][2] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(i + 1, j - 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hx > 0) {
 					hpositivex++;
@@ -1322,7 +1316,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][1] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(i + 1, j + 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hx > 0) {
 					hpositivex++;
@@ -1387,7 +1381,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][2] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(i + 1, i - 1)Ç÷ñ—ç◊ä«çÏóp
 				hx1 = hx;
 				while (hx1 > 0) {
@@ -1455,7 +1449,7 @@ void PlainCal(int i, int j, int k) {
 			}
 
 			//ãﬂñTÇÃåÑä‘ÉZÉãÇÃÇ§ÇøÅC1Ç¬Ç™éºèÅÇÃÇ∆Ç´ÅCéºèÅÉZÉãÇ÷ÇÃêÖï™à⁄ìÆÇÕÇ»Çµ
-			else if (WetDryFlag[i][j][k][0] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(i - 1, j + 1, j - 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hx > 0) {
 					hnegativex++;
@@ -1534,7 +1528,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][1] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(i + 1, j + 1, j - 1)Ç÷ñ—ç◊ä«çÏóp
 				while (hx > 0) {
 					hpositivex++;
@@ -1613,7 +1607,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][2] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(i + 1, i - 1, j - 1)Ç÷ñ—ç◊ä«çÏóp
 				hx1 = hx;
 				while (hx1 > 0) {
@@ -1692,7 +1686,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//ä£ëáÇµÇƒÇ¢ÇÈï˚(i + 1, i - 1, j + 1)Ç÷ñ—ç◊ä«çÏóp
 				hx1 = hx;
 				while (hx1 > 0) {
@@ -1773,7 +1767,7 @@ void PlainCal(int i, int j, int k) {
 			}
 
 			//ãﬂñTÇÃåÑä‘ÉZÉãÇ™ëSÇƒä£ëáÇÃÇ∆Ç´
-			else {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 0) {
 				hx1 = hx;
 				while (hx1 > 0) {
 					hpositivex++;
@@ -1880,7 +1874,7 @@ void PlainCal(int i, int j, int k) {
 		}
 		else if (water[i][j][k] > 0) {
 			//ãﬂñTÇÃåÑä‘ÉZÉãÇ™ëSÇƒéºèÅÇÃÇ∆Ç´ÅCêÖï™à⁄ìÆÇ»ÇµÅCêÖï™ï™îzÇ»Çµ
-			if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][1] == 1 && WetDryFlag[i][j][k][2] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 1) {
 				if (c[i][j][k] > 0) {
 					dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
 					dcS_gap = dt *  DgS * ((c[i][j][k] - c[i][j - 1][k]) / (pow((gap[i][j - 1][Y] + gap[i][j][Y]) / 2, 2)));//Å´
@@ -1918,7 +1912,7 @@ void PlainCal(int i, int j, int k) {
 			}
 
 			//ãﬂñTÇÃåÑä‘ÉZÉãÇÃÇ§ÇøÅC3Ç¬Ç™éºèÅÇÃÇ∆Ç´ Å® éºèÅÇµÇƒÇ¢ÇÈï˚Ç÷ÇÃÇ›ägéUåvéZÅCêÖï™à⁄ìÆÇ»ÇµÅCêÖï™ï™îzÇ»Çµ
-			else if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][1] == 1 && WetDryFlag[i][j][k][2] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//éºèÅ(i + 1, i - 1, j + 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
@@ -1947,7 +1941,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][1] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//éºèÅ(i + 1, i - 1, j - 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcS_gap = dt *  DgS * ((c[i][j][k] - c[i][j - 1][k]) / (pow((gap[i][j - 1][Y] + gap[i][j][Y]) / 2, 2)));//Å´
@@ -1976,7 +1970,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][2] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//éºèÅ(i + 1, j + 1, j - 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
@@ -2005,7 +1999,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][1] == 1 && WetDryFlag[i][j][k][2] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//éºèÅ(i - 1, j + 1, j - 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
@@ -2036,7 +2030,7 @@ void PlainCal(int i, int j, int k) {
 			}
 
 			//ãﬂñTÇÃåÑä‘ÉZÉãÇÃÇ§ÇøÅC2Ç¬Ç™éºèÅÇÃÇ∆Ç´ Å® éºèÅÇµÇƒÇ¢ÇÈï˚Ç÷ÇÃÇ›ägéUåvéZÅCêÖï™à⁄ìÆÇ»ÇµÅCêÖï™ï™îzÇ»Çµ
-			else if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][1] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(i + 1, i - 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcW_gap = dt *  DgW * ((c[i][j][k] - c[i - 1][j][k]) / (pow((gap[i - 1][j][X] + gap[i][j][X]) / 2, 2)));//Å©
@@ -2057,7 +2051,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][2] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(i + 1, j + 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
@@ -2078,7 +2072,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][0] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(i + 1, j - 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcS_gap = dt *  DgS * ((c[i][j][k] - c[i][j - 1][k]) / (pow((gap[i][j - 1][Y] + gap[i][j][Y]) / 2, 2)));//Å´
@@ -2099,7 +2093,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][1] == 1 && WetDryFlag[i][j][k][2] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(i - 1, j + 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
@@ -2120,7 +2114,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][1] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(i - 1, j - 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcS_gap = dt *  DgS * ((c[i][j][k] - c[i][j - 1][k]) / (pow((gap[i][j - 1][Y] + gap[i][j][Y]) / 2, 2)));//Å´
@@ -2141,7 +2135,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][2] == 1 && WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(j + 1, j - 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
@@ -2164,7 +2158,7 @@ void PlainCal(int i, int j, int k) {
 			}
 
 			//ãﬂñTÇÃåÑä‘ÉZÉãÇÃÇ§ÇøÅC1Ç¬Ç™éºèÅÇÃÇ∆Ç´ Å® éºèÅÇµÇƒÇ¢ÇÈï˚Ç÷ÇÃÇ›ägéUåvéZÅCêÖï™à⁄ìÆÇ»ÇµÅCêÖï™ï™îzÇ»Çµ
-			else if (WetDryFlag[i][j][k][0] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 1 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(i + 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcE_gap = dt *  DgE * ((c[i][j][k] - c[i + 1][j][k]) / (pow((gap[i + 1][j][X] + gap[i][j][X]) / 2, 2)));//Å®
@@ -2177,7 +2171,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][1] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 1 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(i - 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcW_gap = dt *  DgW * ((c[i][j][k] - c[i - 1][j][k]) / (pow((gap[i - 1][j][X] + gap[i][j][X]) / 2, 2)));//Å©
@@ -2190,7 +2184,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][2] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 1 && AdjacentCellStatus[i][j][k][3] == 0) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(j + 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcN_gap = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + gap[i][j][Y]) / 2, 2)));//Å™
@@ -2203,7 +2197,7 @@ void PlainCal(int i, int j, int k) {
 					}
 				}
 			}
-			else if (WetDryFlag[i][j][k][3] == 1) {
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 1) {
 				//éºèÅÇµÇƒÇ¢ÇÈï˚(j - 1)Ç÷ägéU
 				if (c[i][j][k] > 0) {
 					dcS_gap = dt *  DgS * ((c[i][j][k] - c[i][j - 1][k]) / (pow((gap[i][j - 1][Y] + gap[i][j][Y]) / 2, 2)));//Å´
@@ -2218,7 +2212,7 @@ void PlainCal(int i, int j, int k) {
 			}
 
 			//ãﬂñTÇÃåÑä‘ÉZÉãÇ™ëSÇƒä£ëáÇÃÇ∆Ç´ Å® Ç»Ç…Ç‡Ç»Ç¢
-			else {}
+			else if (AdjacentCellStatus[i][j][k][0] == 0 && AdjacentCellStatus[i][j][k][1] == 0 && AdjacentCellStatus[i][j][k][2] == 0 && AdjacentCellStatus[i][j][k][3] == 0) {}
 		}
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2228,7 +2222,7 @@ void PlainCal(int i, int j, int k) {
 		//éºèÅÇµÇƒÇ¢ÇÈåÑä‘ÉZÉãÇ÷î˜ó ÇÃägéU
 		if (c[i][j][k] > 0) {
 			DgN = DgS = DgW = DgE = Dg2;
-			if (WetDryFlag[i][j][k][0] == 1) {
+			if (AdjacentCellStatus[i][j][k][0] == 1) {
 				dcE = dt *  DgE * ((c[i][j][k] - c[i + 1][j][k]) / (pow((gap[i + 1][j][X] + yarn[i][j][X]) / 2, 2)));//Å®
 				if (dcE > 0) {
 					c[i + 1][j][k] += dcE;
@@ -2237,7 +2231,7 @@ void PlainCal(int i, int j, int k) {
 					dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
 				}
 			}
-			if (WetDryFlag[i][j][k][1] == 1) {
+			if (AdjacentCellStatus[i][j][k][1] == 1) {
 				dcW = dt *  DgW * ((c[i][j][k] - c[i - 1][j][k]) / (pow((gap[i - 1][j][X] + yarn[i][j][X]) / 2, 2)));//Å©
 				if (dcW > 0) {
 					c[i - 1][j][k] += dcW;
@@ -2246,7 +2240,7 @@ void PlainCal(int i, int j, int k) {
 					dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
 				}
 			}
-			if (WetDryFlag[i][j][k][2] == 1) {
+			if (AdjacentCellStatus[i][j][k][2] == 1) {
 				dcN = dt *  DgN * ((c[i][j][k] - c[i][j + 1][k]) / (pow((gap[i][j + 1][Y] + yarn[i][j][Y]) / 2, 2)));//Å™
 				if (dcN > 0) {
 					c[i][j + 1][k] += dcN;
@@ -2255,7 +2249,7 @@ void PlainCal(int i, int j, int k) {
 					dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
 				}
 			}
-			if (WetDryFlag[i][j][k][3] == 1) {
+			if (AdjacentCellStatus[i][j][k][3] == 1) {
 				dcS = dt *  DgS * ((c[i][j][k] - c[i][j - 1][k]) / (pow((gap[i][j - 1][Y] + yarn[i][j][Y]) / 2, 2)));//Å´
 				if (dcS > 0) {
 					c[i][j - 1][k] += dcS;
@@ -2294,7 +2288,7 @@ void PlainCal(int i, int j, int k) {
 
 
 	//êıêFèIóπèåè
-	double dThreshold = pow(10, -4) * 3.5;//10^-4Ç™ñ≥ìÔÅCÇ†ÇÈàÍíËà»è„è¨Ç≥Ç≠Ç∑ÇÈÇ∆Ç»ÇºÇÃâ~ä¬Ç™åªÇÍÇÈ
+	double dThreshold = pow(10, -4) * 8.0;//3.5 * 10^-4Ç™ñ≥ìÔÅCÇ†ÇÈàÍíËà»è„è¨Ç≥Ç≠Ç∑ÇÈÇ∆Ç»ÇºÇÃâ~ä¬Ç™åªÇÍÇÈ
 	if (i % 2 == 0 && j % 2 == 1) {
 		if (dcN_yarn > dThreshold || dcS_yarn > dThreshold || dcW_gap > dThreshold || dcE_gap > dThreshold) dCount[i][j][k]++;
 	}
@@ -2346,7 +2340,7 @@ void DrawGapPlain(int i, int j, int k) {
 	gapcolor = (dyeDraw[i + 1][j + 1][k] + dyeDraw[i - 1][j - 1][k] + dyeDraw[i + 1][j - 1][k] + dyeDraw[i - 1][j + 1][k]) / 4;
 	glColor3d(1 - gapcolor, 1 - gapcolor, 1);
 	//glColor3d(1, 0, 0);
-	if (p[i][j][k] == 1.5) glColor3d(0.2, 0.0, 0.0);//ñÿî¬Ç≈ã≤ÇÒÇæÇ∆Ç±ÇÎ
+	//if (p[i][j][k] == 1.5) glColor3d(1.0, 1.0, 1.0);//ñÿî¬Ç≈ã≤ÇÒÇæÇ∆Ç±ÇÎ
 	//if (p[i][j][k] <= 1.0) glColor3d(0, 0, 0);
 	if (i % 2 == 1 && j % 2 == 1) {
 		glPushMatrix();
@@ -2399,7 +2393,7 @@ void DrawYarnPlain(int i, int j, int k) {
 
 	//éÖÇÃï`âÊ
 	glColor3d(1 - dyeDraw[i][j][k], 1 - dyeDraw[i][j][k], 1);
-	if (p[i][j][k] == 1.5) glColor3d(0.2, 0.0, 0.0);//ñÿî¬Ç≈ã≤ÇÒÇæÇ∆Ç±ÇÎ
+	//if (p[i][j][k] == 1.5) glColor3d(1.0, 1.0, 1.0);//ñÿî¬Ç≈ã≤ÇÒÇæÇ∆Ç±ÇÎ
 	//if (p[i][j][k] <= 1.0) glColor3d(0, 0, 0);
 	if (k == 0) {//àÍëwñ⁄
 		if ((i % 4 == 0 && j % 4 == 0) || (i % 4 == 2 && j % 4 == 2)) {//â°éÖÅCâ∫			

@@ -33,10 +33,10 @@ void clear(void) {
 				c[i][j][k] = 0;
 				water[i][j][k] = 0;
 				dye[i][j][k] = 0;
-				p[i][j][k] = 1;//大気圧1 atm
+				p[i][j][k] = P_AT;//大気圧1 atm
 				weft[i][j][k] = 0; warp[i][j][k] = 0;
 				Gap[i][j][k] = 0;
-				for (int x = 0; x < 5; x++) WetDryFlag[i][j][k][x] = 0;
+				for (int x = 0; x < 5; x++) AdjacentCellStatus[i][j][k][x] = 0;
 				dCount[i][j][k] = 0;
 
 			}
@@ -134,7 +134,7 @@ void Shibori(void) {
 			A1 = 0.9 * 2 * Ny - i; A2 = 1.1 * 2 * Ny - i;
 			A3 = 0.9 * 2 * Ny - i; A4 = 1.1 * 2 * Ny - i;
 			if (j > A1 && j < A2) {
-				p[i][j][X] = 1.5; p[i][j][Y] = 1.5;
+				p[i][j][X] = p[i][j][Y] = P_MAX;
 				p0_i[n] = i; p0_j[n] = j;//初期圧迫位置を記録
 				n++;
 			}
@@ -159,15 +159,15 @@ void Shibori(void) {
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
 			for (int k = 0; k <= 1; k++) {
-				if (p[i][j][k] > 1.0 && p[i][j][k] < 1.5) {
+				if (p[i][j][k] > P_AT && p[i][j][k] < P_MAX) {
 					gap[i][j][Z] = gap[i][j][Z] / p[i][j][k];
 					yarn[i][j][Z] = yarn[i][j][Z] / p[i][j][k];
 					ap = sqrt(p[i][j][k]);
 					gap[i][j][X] = ap * gap[i][j][X]; gap[i][j][Y] = ap * gap[i][j][Y];
 					yarn[i][j][X] = ap * yarn[i][j][X]; yarn[i][j][Y] = ap * yarn[i][j][Y];
 				}
-				else if (p[i][j][k] >= 1.5) {
-					p[i][j][k] = 1.5;
+				else if (p[i][j][k] >= P_MAX) {
+					p[i][j][k] = P_MAX;
 					gap[i][j][Z] = 0;
 					yarn[i][j][Z] = 0;
 					ap = sqrt(p[i][j][k]);
@@ -219,16 +219,18 @@ void Dye(void) {
 	}
 	//板で斜めに防染した位置よりも右上に円状に滴下
 	double A;
-	rA = 20;
-	for (int i = Ny; i <= 2 * Ny + 1; i++) {
-		for (int j = Nx; j <= 2 * Nx + 1; j++) {
+	rA = 40;
+	for (int i = 1; i <= 2 * Ny + 1; i++) {
+		for (int j = 1; j <= 2 * Nx + 1; j++) {
 			for (int k = 0; k <= 1; k++) {
-				A = (i - 0.6 * 2 * Ny) * (i - 0.6 * 2 * Ny) + (j - 0.6 * 2 * Nx) * (j - 0.6 * 2 * Nx);
-				if (A <= rA * rA) {
-					dye[i][j][k] += 30;
-					water[i][j][k] += 30;
-					c[i][j][k] = dye[i][j][k] / (water[i][j][k] + dye[i][j][k]);
-					//cout << "(" << i << ", " << j << ")\t";
+				A = (i - 0.35 * 2 * Ny) * (i - 0.35 * 2 * Ny) + (j - 0.35 * 2 * Nx) * (j - 0.35 * 2 * Nx);
+				if (p[i][j][k] >= P_AT && p[i][j][k] < P_MAX) {
+					if (A <= rA * rA) {
+						dye[i][j][k] += 0.1;
+						water[i][j][k] += 0.1;
+						c[i][j][k] = dye[i][j][k] / (water[i][j][k] + dye[i][j][k]);
+						//cout << "(" << i << ", " << j << ")\t";
+					}
 				}
 			}
 		}
@@ -408,19 +410,24 @@ void Display1(void) {
 	for (t = 1; t <= loop_times; t++) {
 		dTerminator = 0;
 		bcTerminator = 0;
-		d_pequalTerminator = 0;
 
 		//着目セルの近傍のセルの状態(湿潤 or 乾燥)を確認
 		for (int i = 1; i <= 2 * Ny + 1; i++) {
 			for (int j = 1; j <= 2 * Nx + 1; j++) {
 				for (int k = 0; k <= 1; k++) {
-					if (water[i + 1][j][k] >= capacity[i + 1][j] * 1.0) WetDryFlag[i][j][k][0] = 1;
-					if (water[i - 1][j][k] >= capacity[i - 1][j] * 1.0) WetDryFlag[i][j][k][1] = 1;
-					if (water[i][j + 1][k] >= capacity[i][j + 1] * 1.0) WetDryFlag[i][j][k][2] = 1;
-					if (water[i][j - 1][k] >= capacity[i][j - 1] * 1.0) WetDryFlag[i][j][k][3] = 1;
+					//隣接セルの乾燥・湿潤を判別
+					if (water[i + 1][j][k] >= capacity[i + 1][j] * 1.0) AdjacentCellStatus[i][j][k][0] = 1;
+					if (water[i - 1][j][k] >= capacity[i - 1][j] * 1.0) AdjacentCellStatus[i][j][k][1] = 1;
+					if (water[i][j + 1][k] >= capacity[i][j + 1] * 1.0) AdjacentCellStatus[i][j][k][2] = 1;
+					if (water[i][j - 1][k] >= capacity[i][j - 1] * 1.0) AdjacentCellStatus[i][j][k][3] = 1;
+					//隣接セルが圧迫されているか
+					if (p[i + 1][j][k] >= P_MAX) AdjacentCellStatus[i][j][k][0] = 2;
+					if (p[i - 1][j][k] >= P_MAX) AdjacentCellStatus[i][j][k][1] = 2;
+					if (p[i][j + 1][k] >= P_MAX) AdjacentCellStatus[i][j][k][2] = 2;
+					if (p[i][j - 1][k] >= P_MAX) AdjacentCellStatus[i][j][k][3] = 2;
 					//他の層の状態は現在未考慮(2017/06/15)
-					/*if (k == 0 && water[i][j][k + 1] >= capacity[i][j] * 1.0) WetDryFlag[i][j][k][4] = 1;
-					else if (k == 1 && water[i][j][k - 1] >= capacity[i][j] * 1.0) WetDryFlag[i][j][k][4] = 1;*/
+					/*if (k == 0 && water[i][j][k + 1] >= capacity[i][j] * 1.0) AdjacentCellStatus[i][j][k][4] = 1;
+					else if (k == 1 && water[i][j][k - 1] >= capacity[i][j] * 1.0) AdjacentCellStatus[i][j][k][4] = 1;*/
 					dCount[i][j][k] = 0;
 					bcCount[i][j][k] = 0;
 					d_pequalCount[i][j][k] = 0;
@@ -428,24 +435,27 @@ void Display1(void) {
 			}
 		}
 
-		for (int i = 1; i <= 2 * Ny + 1; i++) {
-			for (int j = 1; j <= 2 * Nx + 1; j++) {
-				for (int k = 0; k <= 1; k++) {
-					if (p[i][j][k] > 1.0 && p[i][j][k] < 1.5) {
-						PlateBoundaryCal(i, j, k);
+		if (d_pequalTerminator > 0) {//t = t-1のときの結果から
+			for (int i = 1; i <= 2 * Ny + 1; i++) {
+				for (int j = 1; j <= 2 * Nx + 1; j++) {
+					for (int k = 0; k <= 1; k++) {
+						if (p[i][j][k] > P_AT && p[i][j][k] < P_MAX) {
+							PlateBoundaryCal(i, j, k);
+						}
+					}
+				}
+			}
+			for (int i = 2 * Ny + 1; i >= 1; i--) {
+				for (int j = 2 * Nx + 1; j >= 1; j--) {
+					for (int k = 1; k >= 0; k--) {
+						if (p[i][j][k] > P_AT && p[i][j][k] < P_MAX) {
+							PlateBoundaryCal(i, j, k);
+						}
 					}
 				}
 			}
 		}
-		for (int i = 2 * Ny + 1; i >= 1; i--) {
-			for (int j = 2 * Nx + 1; j >= 1; j--) {
-				for (int k = 1; k >= 0; k--) {
-					if (p[i][j][k] > 1.0 && p[i][j][k] < 1.5) {
-						PlateBoundaryCal(i, j, k);
-					}
-				}
-			}
-		}
+		d_pequalTerminator = 0;
 
 		for (int i = 1; i <= 2 * Ny + 1; i++) {
 			for (int j = 1; j <= 2 * Nx + 1; j++) {
@@ -461,8 +471,6 @@ void Display1(void) {
 				}
 			}
 		}
-
-		if (t == (loop_times * 0.3) || t == (loop_times * 0.6) || t == (loop_times * 0.9)) cout << ".";
 
 		for (int i = 1; i <= 2 * Ny + 1; i++) {
 			for (int j = 1; j <= 2 * Nx + 1; j++) {
@@ -470,9 +478,6 @@ void Display1(void) {
 					if (dCount[i][j][k] != 0) dTerminator++;//すべてのセルで拡散計算されなければdTerminator = 0
 					if (bcCount[i][j][k] != 0) bcTerminator++;//すべてのセルでBurasの式・毛細管作用の計算がされなければbcTerminator = 0
 					if (d_pequalCount[i][j][k] != 0) d_pequalTerminator++;
-					/*if (isnan(c[i][j][k]) == 1) cout << "t = " << t << ", c[" << i << "][" << j << "][" << k << "] = " << c[i][j][k] << endl;
-					if (isnan(water[i][j][k]) == 1) cout << "t = " << t << ", water[" << i << "][" << j << "][" << k << "] = " << water[i][j][k] << endl;
-					if (isnan(dye[i][j][k]) == 1) cout << "t = " << t << ", dye[" << i << "][" << j << "][" << k << "] = " << dye[i][j][k] << endl;*/
 				}
 			}
 		}
@@ -487,7 +492,7 @@ void Display1(void) {
 			break;
 		}
 
-		//qキーが押下されたときにループ抜け出し
+		//特定のキーが押下されたときの処理
 		char buf;
 		if (_kbhit()) {
 			buf = _getch();
@@ -498,13 +503,12 @@ void Display1(void) {
 			}
 			//tキーが押下されたときに途中結果画像出力
 			if (buf == 't') {
-				//dyemax = 0.0016875;
-				//dyemax = yarnx * yarny * (yarnx + yarny) / 2;
-				dyemax = gapx * yarny * (yarnx + yarny) / 2;
 				for (int i = 1; i <= 2 * Ny + 1; i++) {
 					for (int j = 1; j <= 2 * Nx + 1; j++) {
 						for (int k = 0; k <= 1; k++) {
-							dyeDraw[i][j][k] = dye[i][j][k] / dyemax;
+							if (capacity[i][j] != 0) {
+								dyeDraw[i][j][k] = dye[i][j][k] / capacity[i][j] * 2;
+							}
 						}
 					}
 				}
@@ -525,7 +529,7 @@ void Display1(void) {
 				WriteBitmap("Simulation output(途中経過).bmp", width, height);
 				auto endTime = std::chrono::system_clock::now();
 				auto timeSpan = endTime - startTime;
-				cout << "途中経過: t = " << t << " (" << chrono::duration_cast<chrono::milliseconds>(timeSpan).count() << "[ms])" << endl;
+				cout << "途中経過画像出力: t = " << t << " (" << chrono::duration_cast<chrono::milliseconds>(timeSpan).count() << "[ms])" << endl;
 			}
 		}
 
@@ -534,24 +538,12 @@ void Display1(void) {
 	cout << "染色...COMPLETE" << endl;
 
 	//染料量計算
-	/*for (int i = 1; i <= 2 * Ny + 1; i++) {
-		for (int j = 1; j <= 2 * Nx + 1; j++) {
-			for (int k = 0; k <= 1; k++) {
-				dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
-				if (i % 2 == 0 && j % 2 == 0) {
-					dyemax = (dye[i][j][k] >= dyemax) ? dye[i][j][k] : dyemax;
-				}
-			}
-		}
-	}*/
-	//dyemax = 0.0016875;
-	//dyemax = yarnx * yarny * (yarnx + yarny) / 2;
-	dyemax = gapx * yarny * (yarnx + yarny) / 2;
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
 			for (int k = 0; k <= 1; k++) {
-				//dye[i][j][k] /= dyemax;
-				dyeDraw[i][j][k] = dye[i][j][k] / dyemax;
+				if (capacity[i][j] != 0) {
+					dyeDraw[i][j][k] = dye[i][j][k] / capacity[i][j] * 2;
+				}
 			}
 		}
 	}
@@ -561,14 +553,14 @@ void Display1(void) {
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
 			for (int k = 0; k <= 1; k++) {
-				DrawGapPlain(i, j, k);//セル大きさに沿って、セルを配置
+				DrawGapPlain(i, j, k);
 			}
 		}
 	}
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
 			for (int k = 0; k <= 1; k++) {
-				DrawYarnPlain(i, j, k);//セル大きさに沿って、セルを配置
+				DrawYarnPlain(i, j, k);
 			}
 		}
 	}
