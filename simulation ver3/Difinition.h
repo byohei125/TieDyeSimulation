@@ -55,9 +55,10 @@ double DgE;//→
 double Dg0;//隙間 → 隙間，乾燥隙間へ
 double Dg1;//隙間 → 隙間，湿潤隙間へ
 double Dg2;//糸 → 隙間，湿潤隙間へ
-
-//隙間 → 糸における水分浸透の係数
-double Dw;
+//板付近の拡散
+double D_pequal;
+//折り合わされた布への拡散
+double D_match;
 
 //ゆらぎ
 double yuragix[NN][NN];
@@ -80,6 +81,13 @@ double yuragiw_range_setting;//ゆらぎ量をyuragi_rangeにするため
 //圧迫
 double p[NN + 2][NN + 2][2];//圧力
 int p0_i[NN * 100], p0_j[NN * 100];//圧迫位置，最初に布を圧迫しているところ
+
+//折り
+int ContactCell_i[NN + 2][NN + 2][2];//i, j, そのセルの上にセルが接しているのか？下に接しているのか
+int ContactCell_j[NN + 2][NN + 2][2];//i, j, そのセルの上にセルが接しているのか？下に接しているのか
+int Folded[NN + 2][NN + 2];//その位置のセルは何回折り返されているか，そのセルにおける上下を求める用，1回折られるごとに上下が逆転
+int M_OR_V = 1;//0：山折り，1：谷折り
+
 
 //毛細管作用
 int Temperature;//温度
@@ -110,6 +118,10 @@ double yarnx;//横糸の太さの基準値（いわゆる番手より得られる太さ）[mm]
 double yarny;//縦糸の太さの基準値（いわゆる番手より得られる太さ）[mm]
 double capacity[NN + 2][NN + 2];//セルの飽和量（許容量，体積）[mm^3]
 
+//折れ線の設定
+int fold_times;//折る回数，折れ線の本数
+//double line_a, line_b, line_c, line_a2, line_b2;//直線の式の係数：ax + by + c = 0
+double line_a[10], line_b[10], line_c[10], line_a2[10], line_b2[10];//直線の式の係数：ax + by + c = 0
 
 //計算用の変数
 double dt = 0.005;//1タイムステップに経過する時間0.005
@@ -129,7 +141,7 @@ int dCount[NN + 2][NN + 2][2];//拡散計算が起きているか確認用
 int bcCount[NN + 2][NN + 2][2];//Burasの式と毛細管作用の計算が起きているか確認用
 int d_pequalCount[NN + 2][NN + 2][2];//等圧セル間における拡散計算が起きているか確認用
 int wet_or_dry;//初期状態において布は湿潤か乾燥か(0：乾燥，1：湿潤)
-
+int fold_setting;//布は折るかどうか(0：折らない，1：折る)
 
 //描画用
 int width, height;//ウィンドウ大きさ・座標
@@ -147,6 +159,14 @@ double dyeDraw[NN + 2][NN + 2][2];//描画用染料値
 
 //織り方
 int weavepattern = 0;//Plain = 1, Twill = 2，Sateen = 3
+
+//---------------------------------------------------------------------------------------------------
+//　　Fold_lines
+//　　Desc : 折れ線
+//---------------------------------------------------------------------------------------------------
+double Fold_lines(int i, int j, int fold_times) {
+	return line_a[fold_times] * i + line_b[fold_times] * j + line_c[fold_times];
+}
 
 //---------------------------------------------------------------------------------------------------
 //　　InitRand

@@ -123,31 +123,61 @@ void Parameter() {
 		break;
 	}
 
+	cout << endl << "布を折る？（0：折らない，1：折る）"; cin >> fold_setting;
+	if (fold_setting == 0) cout << "折りなし" << endl;
+	else if (fold_setting == 1) {
+		fold_times = 1;
+		cout << "折る回数は？"; /*cin >> fold_times;*/ cout << fold_times << endl;
+		for (int n = 0; n < fold_times; n++) {
+			cout << "折れ線の設定：" << n << "本目" << endl;
+			//以下ちーと
+			if (n == 0) {
+				line_a[n] = 1;//-1.5
+				line_b[n] = 0;//1
+				line_c[n] = -94;//50
+				line_a2[n] = pow(line_a[n], 2);
+				line_b2[n] = pow(line_b[n], 2);
+			}
+			else if (n == 1) {
+				line_a[n] = 0;
+				line_b[n] = 1;
+				line_c[n] = -94;
+				line_a2[n] = pow(line_a[n], 2);
+				line_b2[n] = pow(line_b[n], 2);
+			}
+			if (line_a[n] != 0 && line_b[n] != 0 && line_c[n] != 0) cout << line_a[n] << " * x" << line_b[n] << " * y" << " + " << line_c[n] << endl;
+			else if (line_a[n] == 0) cout << line_b[n] << " * y = " << -line_c[n] << endl;
+			else if (line_b[n] == 0) cout << line_a[n] << " * x = " << -line_c[n] << endl;
+			else if (line_c[n] == 0) cout << line_a[n] << " * x" << line_b[n] << " * y = 0" << endl;
+		}
+	}
+
 	cout << endl << "布は乾燥or湿潤？（0：乾燥，1：湿潤）"; cin >> wet_or_dry;
 	if (wet_or_dry == 0) cout << "布は乾燥" << endl;
 	else cout << "布は湿潤" << endl;
 
 	cout << endl << "拡散係数を設定してください　"; /*cin >> D;*/
-	Dw = 0.1;
 	Dy0 = 0.1;
 	Dy1 = 0.1;
 	Dg0 = 0.1;
 	Dg1 = 0.1;
 	Dg2 = 0.0001;
+	D_pequal = 0.5;
+	D_match = 0.3;
 	cout << endl;
-	cout << "Dw = " << Dw << "　　隙間 → 糸 (水分浸透)" << endl;
 	cout << "Dy0 = " << Dy0 << "　　隙間 → 乾燥糸" << endl;
 	cout << "Dy1 = " << Dy1 << "　　隙間 → 湿潤糸" << endl;
 	cout << "Dg0 = " << Dg0 << "　　隙間 → 乾燥隙間 (使われない)" << endl;
 	cout << "Dg1 = " << Dg1 << "　　隙間 → 湿潤隙間" << endl;
 	cout << "Dg2 = " << Dg2 << "　　糸 → 湿潤隙間" << endl;
+	cout << "D_pequal = " << D_pequal << "　　板付近" << endl;
+	cout << "D_match = " << D_match << "　　折り合わされた布へ" << endl;
 
 	cout << endl << "染料溶液の温度を設定してください（0, 20, 40, 60, 80, 100℃）"; /*cin >> Temperature;*/
 	Temperature = 60; cout << Temperature << "℃" << endl;
 	SurfaceTension = 0.06618;//60℃のとき
 	//Viscosity = 0.0004658;//60℃のとき
 	Viscosity = 0.04658;//60℃のとき，これはうそのデータ
-	loop_times = 100000;
 	/*switch (Temperature) {
 	case 0:
 		SurfaceTension = 0.07564; Viscosity = 0.0017917;
@@ -168,5 +198,7 @@ void Parameter() {
 		SurfaceTension = 0.05885; Viscosity = 0.0002824;
 		break;
 	}*/
+	
+	loop_times = 100000;
 
 }

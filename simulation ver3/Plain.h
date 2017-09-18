@@ -31,7 +31,6 @@ void PlateBoundaryCal(int i, int j, int k) {
 	}
 	if (n > 0 && c[i][j][k] > 0) {
 		double dc_pequal[nn] = {};
-		double D_pequal = 0.5;
 		for (int l = 0; l < n; l++) {
 			//’…–ÚƒZƒ‹‚Æ“™ˆ³—Í‚ÌƒZƒ‹‚Æ‚Ì‹——£‚ÌŽZo
 			double d_pequal = 0;
@@ -122,19 +121,19 @@ void PlainCal(int i, int j, int k) {
 
 	/////////////////////////////////////////–hõ•”•ª(”Â‚È‚Ç)‚Ì‚ ‚é•ûŒü‚Ì’Tõ////////////////////////////////////////////
 	int Ncount = 0, Scount = 0, Wcount = 0, Ecount = 0;
-	while (p[i][j + Ncount][k] < 1.5) {
+	while (p[i][j + Ncount][k] < P_MAX) {
 		Ncount++;
 		if (j + Ncount > 2 * Nx + 1) break;
 	}
-	while (p[i][j - Scount][k] < 1.5) {
+	while (p[i][j - Scount][k] < P_MAX) {
 		Scount++;
 		if (j - Scount < 0) break;
 	}
-	while (p[i - Wcount][j][k] < 1.5) {
+	while (p[i - Wcount][j][k] < P_MAX) {
 		Wcount++;
 		if (i - Wcount < 0) break;
 	}
-	while (p[i + Ecount][j][k] < 1.5) {
+	while (p[i + Ecount][j][k] < P_MAX) {
 		Ecount++;
 		if (i + Ecount > 2 * Ny + 1) break;
 	}
@@ -2286,8 +2285,25 @@ void PlainCal(int i, int j, int k) {
 		}
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////Ü‚è‡‚í‚³‚ê‚½•z‚Ö‚ÌZ“§EŠgŽU//////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	double dc, d_match = 0.01;
+	int match_i = ContactCell_i[i][j][M_OR_V];
+	int match_j = ContactCell_j[i][j][M_OR_V];
+	if (water[match_i][match_j][k] >= capacity[match_i][match_j] * 1.0) {
+		dc = dt * D_match *((c[i][j][k] - c[match_i][match_j][k]) / d_match);
+		if (dc > 0) {
+			c[match_i][match_j][k] += dc;
+			dye[match_i][match_j][k] = (c[match_i][match_j][k] / (1 - c[match_i][match_j][k])) * water[match_i][match_j][k];
+			c[i][j][k] -= dc;
+			dye[i][j][k] = (c[i][j][k] / (1 - c[i][j][k])) * water[i][j][k];
+		}
+	}
 
-	//õFI—¹ðŒ
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////õFI—¹ðŒ/////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	double dThreshold = pow(10, -4) * 8.0;//3.5 * 10^-4‚ª–³“ïC‚ ‚éˆê’èˆÈã¬‚³‚­‚·‚é‚Æ‚È‚¼‚Ì‰~ŠÂ‚ªŒ»‚ê‚é
 	if (i % 2 == 0 && j % 2 == 1) {
 		if (dcN_yarn > dThreshold || dcS_yarn > dThreshold || dcW_gap > dThreshold || dcE_gap > dThreshold) dCount[i][j][k]++;
@@ -2340,8 +2356,9 @@ void DrawGapPlain(int i, int j, int k) {
 	gapcolor = (dyeDraw[i + 1][j + 1][k] + dyeDraw[i - 1][j - 1][k] + dyeDraw[i + 1][j - 1][k] + dyeDraw[i - 1][j + 1][k]) / 4;
 	glColor3d(1 - gapcolor, 1 - gapcolor, 1);
 	//glColor3d(1, 0, 0);
-	//if (p[i][j][k] == 1.5) glColor3d(1.0, 1.0, 1.0);//–Ø”Â‚Å‹²‚ñ‚¾‚Æ‚±‚ë
+	//if (p[i][j][k] == 1.5) glColor3d(0, 0, 0);//–Ø”Â‚Å‹²‚ñ‚¾‚Æ‚±‚ë
 	//if (p[i][j][k] <= 1.0) glColor3d(0, 0, 0);
+	if (Folded[i][j] == 2) glColor3d(0, 0, 0);//Ü‚êü
 	if (i % 2 == 1 && j % 2 == 1) {
 		glPushMatrix();
 		glBegin(GL_QUADS);
@@ -2393,8 +2410,9 @@ void DrawYarnPlain(int i, int j, int k) {
 
 	//Ž…‚Ì•`‰æ
 	glColor3d(1 - dyeDraw[i][j][k], 1 - dyeDraw[i][j][k], 1);
-	//if (p[i][j][k] == 1.5) glColor3d(1.0, 1.0, 1.0);//–Ø”Â‚Å‹²‚ñ‚¾‚Æ‚±‚ë
+	//if (p[i][j][k] == 1.5) glColor3d(0, 0, 0);//–Ø”Â‚Å‹²‚ñ‚¾‚Æ‚±‚ë
 	//if (p[i][j][k] <= 1.0) glColor3d(0, 0, 0);
+	if (Folded[i][j] == 2) glColor3d(0, 0, 0);//Ü‚êü
 	if (k == 0) {//ˆê‘w–Ú
 		if ((i % 4 == 0 && j % 4 == 0) || (i % 4 == 2 && j % 4 == 2)) {//‰¡Ž…C‰º			
 			glPushMatrix();

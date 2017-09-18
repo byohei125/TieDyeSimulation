@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
+#include <fstream>
 #include <string>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -15,7 +16,7 @@
 #include "Plain.h"
 #include "Yuragi.h"
 #include "Parameter.h"
-#include "Pressure.h"
+#include "Shibori.h"
 
 using namespace std;
 
@@ -121,22 +122,88 @@ void Cloth(void) {
 }
 
 //---------------------------------------------------------------------------------------------------
+//　　Fold
+//　　Desc : 布の折り
+//---------------------------------------------------------------------------------------------------
+void Fold(void) {
+	
+	int newCoodinate_i[NN + 2][NN + 2];
+	int newCoodinate_j[NN + 2][NN + 2];
+	int originalCoodinate_i[NN + 2][NN + 2];
+	int originalCoodinate_j[NN + 2][NN + 2];
+
+	//折り畳んだあとに重なるセルの座標値を記録する
+	ofstream outputfile1("新旧座標値の対応関係.txt");
+	for (int i = 1; i <= 2 * Ny + 1; i++) {
+		for (int j = 1; j <= 2 * Nx + 1; j++) {
+			if (Fold_lines(i, j, 0) < 0) {//折り曲げられた側
+				Folded[i][j]++;
+				newCoodinate_i[i][j] = floor(-((line_a2[0] - line_b2[0]) * i + 2 * line_a[0] * line_b[0] * j + 2 * line_a[0] * line_c[0]) / (line_a2[0] + line_b2[0]) + 0.5);
+				newCoodinate_j[i][j] = floor(-(2 * line_a[0] * line_b[0] * i - (line_a2[0] - line_b2[0]) * j + 2 * line_b[0] * line_c[0]) / (line_a2[0] + line_b2[0]) + 0.5);
+				int new_i, new_j;
+				new_i = newCoodinate_i[i][j];
+				new_j = newCoodinate_j[i][j];
+				originalCoodinate_i[new_i][new_j] = i;
+				originalCoodinate_j[new_i][new_j] = j;
+				outputfile1 << "(new_i, new_j) = (" << new_i << ", " << new_j << ") : (i, j) = (" << i << ", " << j << ")" << endl;
+			}
+			if (Fold_lines(i, j, 0) == 0) Folded[i][j] = 2;//折れ線，赤
+		}
+	}
+	outputfile1.close();
+	ofstream outputfile2("折りによる座標値の対応関係ContactCell.txt");
+	//どのセル同士が接しているかを記録
+	for (int new_i = 1; new_i <= 2 * Ny + 1; new_i++) {
+		for (int new_j = 1; new_j <= 2 * Nx + 1; new_j++) {
+			if (Fold_lines(new_i, new_j, 0) < 0) {//折り曲げられた側
+				for (int i = 1; i <= 2 * Ny + 1; i++) {
+					for (int j = 1; j <= 2 * Nx + 1; j++) {
+						if (Fold_lines(i, j, 0) > 0) {//折り合わされた側
+							if (newCoodinate_i[new_i][new_j] == i && newCoodinate_j[new_i][new_j] == j) {
+								ContactCell_i[i][j][M_OR_V] = originalCoodinate_i[newCoodinate_i[new_i][new_j]][newCoodinate_j[new_i][new_j]];
+								ContactCell_j[i][j][M_OR_V] = originalCoodinate_j[newCoodinate_i[new_i][new_j]][newCoodinate_j[new_i][new_j]];
+								outputfile2 << "ContactCell[" << i << "][" << j << "][" << M_OR_V << "] = (" << ContactCell_i[i][j][M_OR_V] << ", " << ContactCell_j[i][j][M_OR_V] << ")\t";
+								ContactCell_i[ContactCell_i[i][j][M_OR_V]][ContactCell_j[i][j][M_OR_V]][M_OR_V] = i;
+								ContactCell_j[ContactCell_i[i][j][M_OR_V]][ContactCell_j[i][j][M_OR_V]][M_OR_V] = j;
+								outputfile2 << "ContactCell[" << ContactCell_i[i][j][M_OR_V] << "][" << ContactCell_j[i][j][M_OR_V] << "][" << M_OR_V << "] = (" << i << ", " << j << ")" << endl;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	outputfile2.close();
+
+	cout << endl << "折り設定(Fold)...COMPLETE" << endl;
+
+}
+
+//---------------------------------------------------------------------------------------------------
 //　　Shibori
 //　　Desc : 布の圧迫の設定，ゆくゆくは絞りの設定
 //---------------------------------------------------------------------------------------------------
 void Shibori(void) {
 
 	//初期圧迫位置の設定
-	double A1 = 0, A2 = 0, A3 = 0, A4 = 0;
+	double A1 = 0, A2 = 0;
 	int n = 0;
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
-			A1 = 0.9 * 2 * Ny - i; A2 = 1.1 * 2 * Ny - i;
-			A3 = 0.9 * 2 * Ny - i; A4 = 1.1 * 2 * Ny - i;
+			A1 = -i + 1.2 * 2 * Ny; A2 = -i + 1.4 * 2 * Ny;
 			if (j > A1 && j < A2) {
-				p[i][j][X] = p[i][j][Y] = P_MAX;
-				p0_i[n] = i; p0_j[n] = j;//初期圧迫位置を記録
-				n++;
+				if (fold_setting == 1) {
+					if (Fold_lines(i, j, 0) > 0) {//折り合わされた側
+						p[i][j][X] = p[i][j][Y] = P_MAX;
+						p0_i[n] = i; p0_j[n] = j;//初期圧迫位置を記録
+						n++;
+					}
+				}
+				else {
+					p[i][j][X] = p[i][j][Y] = P_MAX;
+					p0_i[n] = i; p0_j[n] = j;//初期圧迫位置を記録
+					n++;
+				}
 			}
 		}
 	}
@@ -150,6 +217,20 @@ void Shibori(void) {
 					Pressure(i, j);
 				}
 				p[i][j][Y] = p[i][j][X];//縦糸層と横糸層で同じ圧力分布
+			}
+		}
+	}
+
+	//折り合わされた布にも圧力を与える
+	for (int i = 1; i <= 2 * Ny + 1; i++) {
+		for (int j = 1; j <= 2 * Nx + 1; j++) {
+			if (fold_setting == 1) {
+				if (Fold_lines(i, j, 0) > 0) {//折りあわされた側
+					int match_i = ContactCell_i[i][j][M_OR_V];
+					int match_j = ContactCell_j[i][j][M_OR_V];
+					p[match_i][match_j][X] = p[i][j][X];
+					p[match_i][match_j][Y] = p[i][j][Y];
+				}
 			}
 		}
 	}
@@ -219,11 +300,12 @@ void Dye(void) {
 	}
 	//板で斜めに防染した位置よりも右上に円状に滴下
 	double A;
-	rA = 40;
+	rA = 30;
 	for (int i = 1; i <= 2 * Ny + 1; i++) {
 		for (int j = 1; j <= 2 * Nx + 1; j++) {
 			for (int k = 0; k <= 1; k++) {
-				A = (i - 0.35 * 2 * Ny) * (i - 0.35 * 2 * Ny) + (j - 0.35 * 2 * Nx) * (j - 0.35 * 2 * Nx);
+				//A = (i - 0.35 * 2 * Ny) * (i - 0.35 * 2 * Ny) + (j - 0.35 * 2 * Nx) * (j - 0.35 * 2 * Nx);//斜めに板締めしたとき用(中間合宿前)
+				A = (i - 0.25 * 2 * Ny) * (i - 0.25 * 2 * Ny) + (j - 0.25 * 2 * Nx) * (j - 0.25 * 2 * Nx);
 				if (p[i][j][k] >= P_AT && p[i][j][k] < P_MAX) {
 					if (A <= rA * rA) {
 						dye[i][j][k] += 0.1;
@@ -394,10 +476,10 @@ void Yuragi(void) {
 }
 
 //---------------------------------------------------------------------------------------------------
-//　　Display1
+//　　Display
 //　　Desc : ウィンドウ1への描画
 //---------------------------------------------------------------------------------------------------
-void Display1(void) {
+void Display(void) {
 	auto startTime = std::chrono::system_clock::now();
 
 	//画面クリア
@@ -543,6 +625,7 @@ void Display1(void) {
 			for (int k = 0; k <= 1; k++) {
 				if (capacity[i][j] != 0) {
 					dyeDraw[i][j][k] = dye[i][j][k] / capacity[i][j] * 2;
+					//if (dyeDraw[i][j][k] != 0) cout << "dyeDraw = " << dyeDraw[i][j][k] << endl;
 				}
 			}
 		}
@@ -630,6 +713,7 @@ int main(int argc, char *argv[]) {
 	clear();
 	Cloth();
 	ClothDraw();//ゆらぎなしで描画位置を計算
+	if (fold_setting == 1) Fold();
 	Shibori();
 	Yuragi();	
 	Dye();
@@ -652,7 +736,7 @@ int main(int argc, char *argv[]) {
 	glutInitWindowSize(width, height);//値はピクセル
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
 	WinID[0] = glutCreateWindow("Tie Dye simulation");
-	glutDisplayFunc(Display1);
+	glutDisplayFunc(Display);
 	glutReshapeFunc(resize);
 	glutMouseFunc(mouse);
 	Initialize();
